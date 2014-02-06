@@ -1,0 +1,91 @@
+html, body {
+	height: 90%;
+	/*width: 100%;*/
+	margin: 5px 0px;
+	padding: 0px;
+	font-family: helvetica, arial, sans-serif;
+	font-size: 90%;
+	margin-left: auto ;
+	margin-right: auto ;
+	background-color: darkgray;
+}
+.soa{
+	font-family: helvetica, arial, sans-serif;
+	font-size: 250%;
+	font-weight:bold;
+	color:white;
+	position:relative;
+	display:inline-block;
+	height:50px;
+	/*left:80px;*/
+	
+}			
+#footer{
+	height:10%;
+	background-color: #860038;
+}	
+#header{
+	height:12%;
+	background-color: #860038;
+}	
+#contact{
+	text-decoration:none;
+	padding: 2px 0px 0px 0px;
+	color: white;
+	text-align:center;
+}
+#smallBar{
+	height:5px;
+	background-color:gray;
+}
+#medBar{
+	height:15px;
+	background-color:gray;
+}
+#largeBar{
+	height:30px;
+	background-color:gray;
+}
+#largeBarWhite{
+	height:30px;
+	background-color:white;
+}
+.esriScalebar{padding: 20px 20px; }
+
+#leftPane {
+	width: 310px;
+	overflow: auto
+}
+/* this line hide layers when out of scale for the inline TOC */
+#scaleDiv .agsTOCOutOfScale {
+	display: none;
+}
+.esriPrint{
+	height:20px;
+	float: left;
+	padding: 0px;
+}
+.esriPrintout{
+  color:#3D5229;
+  text-decoration:none;
+}
+.floatTop{
+	z-index: 9999;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}		
+
+#search_tab {
+position: absolute;
+height: 170px;
+width: 45px;
+left: -45px;
+top: 455px;
+background: url(/ARFireDist/img/side_tab_1.png) no-repeat;
+cursor: pointer;
+z-index: 999;
+}	

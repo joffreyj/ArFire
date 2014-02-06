@@ -1,0 +1,27 @@
+<div class="dojoxFloatingPaneWrapper">
+		<!--div dojoType="dijit.layout.AccordionContainer" style="height: 300px;" id="accordion"-->
+			<div dojoType="dijit.layout.ContentPane" title="Search / Print" selected="true" id="accToc">
+				<!--div id="tocDiv">
+				</div><Br/><hr/-->
+				<strong>Search</strong><br/><br/>
+				<input id="radpar" type="radio" value="distDiv" checked="checked" name="searchParam" onChange="searchToggle(this)">
+				Fire District
+				<input id="radpro" type="radio" value="countyDiv" name="searchParam" onChange="searchToggle(this);">
+				County
+				<br>
+				<div id="distDiv" style="display:block">
+				<br/>
+				<!--div id="distSearch"></div-->
+				<input id="distSearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME" name="distSearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME', descending:false}]}" placeHolder="Select a fire dist from the list"/>
+				&nbsp;&nbsp;<button type="button" id="searchDistButton" onclick="doDistFind();">Search</button><br/><br/>
+				</div>
+				<div id="countyDiv" style="display:none">
+				<br/>
+				<input id="countySearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME10" name="countySearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME10', descending:false}]}" placeHolder="Select a county from the list"/>
+				&nbsp;&nbsp;<button type="button" id="searchButton" onclick="doFind();">Search</button><br/><br/></div>
+				<hr/>
+				<strong>Print</strong><br/><br/>
+				Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">AR Fire Districts</textarea><br />
+				<span id="printButton"></span>&nbsp;
+			<!--/div-->									
+</div>

@@ -1,0 +1,460 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9" />
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+        <title>AR Fire Districts Map</title>
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dijit/themes/claro/claro.css">
+		<link rel="stylesheet" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/js/esri/css/esri.css">
+        <style>
+
+            html, body {
+                height: 95%;
+                /*width: 100%;*/
+                margin: 0px 0px;
+                padding: 0px;
+                font-family: helvetica, arial, sans-serif;
+                font-size: 90%;
+				/*background-color: #3e5e10;*/
+            }
+            .esriScalebar{padding: 20px 20px; }
+			
+            #leftPane {
+                width: 200px;
+                overflow: auto
+            }
+            /* this line hide layers when out of scale for the inline TOC */
+            #scaleDiv .agsTOCOutOfScale {
+                display: none;
+            }
+			.esriPrint{
+				height:20px;
+				float: left;
+				padding: 0px;
+			}
+			.esriPrintout{
+			  color:#3D5229;
+			  text-decoration:none;
+			}
+			.floatTop{
+				z-index: 9999;
+			}
+
+			/* HTML5 display-role reset for older browsers */
+			article, aside, details, figcaption, figure, 
+			footer, header, hgroup, menu, nav, section {
+				display: block;
+			}
+			
+        </style>
+        <script type="text/javascript">
+           var djConfig = {
+              parseOnLoad: true,
+              packages: [{
+                "name": "agsjs",
+                "location": location.pathname.replace(/\/[^/]+$/, "")+'/agsjs'
+               //"location": 'http://gmaps-utility-gis.googlecode.com/svn/tags/agsjs/2.02/xbuild/agsjs' // for xdomain load
+              }]
+            };
+        </script>
+        <script type="text/javascript" src="http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/">
+        </script>
+        <script type="text/javascript">
+            //
+            dojo.require("dijit.layout.BorderContainer");
+            dojo.require("dijit.layout.ContentPane");
+            // uncomment if want dojo widget style checkbox
+            dojo.require('dijit.form.CheckBox');
+            dojo.require("esri.map");
+			dojo.require("esri.dijit.Print");
+            dojo.require("dojo.fx");// needed if use jsapi 3.0
+            dojo.require("agsjs.dijit.TOC");
+			//dojo.require("esri.dijit.Geocoder");
+			dojo.require("esri.dijit.Popup");
+			dojo.require("esri.toolbars.navigation");
+			dojo.require("dijit.form.Button");
+			dojo.require("dijit.form.Select");
+			dojo.require("dijit.Dialog");
+			dojo.require("dijit.form.TextBox");
+			dojo.require("dijit.layout.AccordionContainer");
+			//dojo.require("dojox.grid.DataGrid");
+			dojo.require("dojo.data.ItemFileReadStore");
+			dojo.require("dijit.form.FilteringSelect");
+			dojo.require("esri.tasks.query");
+		    var map, queryTask, query;  //identity
+			var identifyTask, identifyParams, initialExtent, aecam, mtitle, store;  //identity, grid, 
+			var exportUrl = "http://mimisbrunnr:6080/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task";
+			var restUrl = "http://mimisbrunnr:6080/arcgis/rest/services/Ar_Fire_Distrcts/MapServer";
+        </script>
+        <script type="text/javascript">            
+
+            function init() {				
+				//dojo.connect(grid, "onRowClick", onRowClickHandler);
+              //identity setup the popup window 
+				var popup = new esri.dijit.Popup({
+				  fillSymbol: new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 2), new dojo.Color([255,255,0,0.25]))
+				}, dojo.create("div"));
+				
+				initialExtent = new esri.geometry.Extent(172209.475904854, 3791359.1077277837, 985642.8725089643,  4064083.0555859907, new esri.SpatialReference({
+                    wkid: 26915  
+                }));
+				
+			  map = new esri.Map("map", {
+				  extent: initialExtent,
+				  logo:false,
+				  zoom: 8,
+				  infoWindow: popup  
+				});
+             
+              
+			   Ar_Fire_Distrcts = new esri.layers.ArcGISDynamicMapServiceLayer(restUrl, {
+				id: 'Ar_Fire_Distrcts',
+				opacity: 0.8
+			  });
+				dojo.connect(map, "onLoad", function(){				
+					navToolbar = new esri.toolbars.Navigation(map);
+					createPrintDijit(dojo.byId('map_name').value);
+				});									
+				
+				/*dojo.connect(map, 'onLayersAddResult', function(results) {			  
+					var toc = new agsjs.dijit.TOC({
+					  map: map,
+					  layerInfos: [{
+						layer: Ar_Fire_Distrcts,
+						title: "AR Fire Districts"
+					  }]
+					}, 'tocDiv');
+					toc.startup();
+                });*/
+
+				map.addLayers([Ar_Fire_Distrcts]);
+                  
+				//identity
+				//debug
+				//dojo.connect(map,"onClick",layerList);
+				dojo.connect(map,"onClick",executeIdentifyTask);
+
+				//create identify tasks and setup parameters 
+				dojo.connect(map, "onLoad", function () {
+                    identifyTask = new esri.tasks.IdentifyTask("http://mimisbrunnr:6080/arcgis/rest/services/Ar_Fire_Distrcts/MapServer");
+
+                    identifyParams = new esri.tasks.IdentifyParameters();
+                    identifyParams.tolerance = 10;
+                    identifyParams.returnGeometry = true;
+                    identifyParams.width = map.width;
+                    identifyParams.height = map.height;
+
+
+                    //Create Find Task using Post code layer
+                    findTask = new esri.tasks.FindTask("http://mimisbrunnr:6080/arcgis/rest/services/Ar_Fire_Distrcts/MapServer");
+                    //Create the find parameters
+                    findParams = new esri.tasks.FindParameters();
+                    findParams.returnGeometry = true;
+                    findParams.outSpatialReference = map.spatialReference;
+					
+					queryTask = new esri.tasks.QueryTask("http://mimisbrunnr:6080/arcgis/rest/services/Ar_Fire_Distrcts/MapServer/1");
+
+					//build query filter
+					query = new esri.tasks.Query();
+					query.returnGeometry = false;
+					query.outFields = ["OBJECTID_1","COUNTY"];					
+					runQuery();					
+                });
+				
+				dojo.connect(searchButton,"onclick",setPrintTitle);		
+            }	
+			function runQuery(){
+				query.where = "OBJECTID_1<>0";
+				//execute query
+				queryTask.execute(query, qryResults);
+			}
+			function qryResults(results){
+			
+			//create array of attributes
+				var items = dojo.map(results.features, function (result) {					
+					x= result.attributes;
+					return x;
+                });
+				
+				//Create data object to be used in store
+				var data = {
+				  identifier: "OBJECTID_1",  //This field needs to have unique values
+				  //label: "value", //Name field for display. Not pertinent to a grid but may be used elsewhere.
+				  items:items
+				};
+				store = new dojo.data.ItemFileReadStore({ data:data });
+				var filteringSelect = new  dijit.form.FilteringSelect({
+							id: "countySearch",
+							name: "COUNTY",
+							value: "OBJECTID_1",
+							store: store,
+							searchAttr: "COUNTY"
+						}, "countySearch"); 
+			}
+			
+			function setPrintTitle(){
+			//alert(document.getElementById('program').options[document.getElementById('program').selectedIndex].text);
+				var searchVal = dojo.byId('countySearch').value;
+				
+				var searchString = searchVal;
+				
+				dojo.byId('map_name').value = searchString;				
+			}
+			function handleError(err) {
+				console.log("Something broke: ", err);
+			}			
+			function createPrintDijit(printTitle) {
+				var layoutTemplate, templateNames, mapOnlyIndex, templates;
+								
+				// create an array of objects that will be used to create print templates
+				var layouts = [
+				  { 
+					"name": "Letter ANSI A Landscape", 
+					"label": "Landscape (PDF)", 
+					"format": "pdf", 
+					"options": { 
+					  "legendLayers": [], // empty array means no legend
+					  "scalebarUnit": "Miles",
+					  "titleText": printTitle + ", Landscape PDF" 
+					}
+				  }, {
+					"name": "Letter ANSI A Portrait", 
+					"label": "Portrait (Image)", 
+					"format": "jpg", 
+					"options":  { 
+					  "legendLayers": [],
+					  "scaleBarUnit": "Miles",
+					  "titleText": printTitle + ", Portrait JPG"
+					}
+				  },{
+                    label: "Map Only (PNG)",
+                    format: "PNG32",
+                    layout: "MAP_ONLY",
+                    preserveScale: false,
+                    exportOptions: {
+                      width: 1024,
+                      height: 768,
+                      dpi: 96
+                    }
+                  }
+				];
+				
+				// create the print templates, could also use dojo.map
+				var templates = [];
+				dojo.forEach(layouts, function(lo) {
+				  var t = new esri.tasks.PrintTemplate();
+				  t.layout = lo.name;
+				  t.label = lo.label;
+				  t.format = lo.format;
+				  t.layoutOptions = lo.options
+				  templates.push(t);
+				});
+
+				printer = new esri.dijit.Print({
+				  "map": map,
+				  "templates": templates,
+				  "asynch":	false,
+				  url: exportUrl
+				}, dojo.byId("printButton"));
+				printer.startup();			
+				dojo.connect(printer, "onPrintStart", function(){
+					this.templates[0].layoutOptions.titleText = dojo.byId("map_name").value;
+				});											
+			 }
+			//identity
+			function executeIdentifyTask(evt) {	
+				if(evt.mapPoint){
+					identifyParams.geometry = evt.mapPoint;
+				}else{
+					identifyParams.geometry = evt.geometry;
+				}	
+				identifyParams.mapExtent = map.extent;
+				identifyParams.layerIds=[0,1,2]; //identifyParams.layerIds = [2]; //	
+				var deferred = identifyTask.execute(identifyParams);
+
+				deferred.addCallback(function(response) {     
+				  // response is an array of identify result objects    
+				  // Let's return an array of features.
+				  return dojo.map(response, function(result) {
+					var feature = result.feature;
+						feature.attributes.layerName = result.layerName;
+						var template = new esri.InfoTemplate(); 
+						template.setTitle(feature.attributes.layerName);
+						alert(result.layerName);
+					switch (result.layerName){
+						case 'County':
+							template.setContent(getSNPContent);
+							feature.setInfoTemplate(template);
+							break;
+						case 'Fire Districts':
+							template.setContent(getFDContent);
+							feature.setInfoTemplate(template);
+							break;
+						case 'Parcels':
+							template.setContent(getParcelContent);
+							feature.setInfoTemplate(template);
+							break;							
+						default:
+							return false;
+					}					
+					return feature;
+				  });
+				});
+
+
+				// InfoWindow expects an array of features from each deferred
+				// object that you pass. If the response from the task execution 
+				// above is not an array of features, then you need to add a callback
+				// like the one above to post-process the response and return an
+				// array of features.
+				map.infoWindow.setFeatures([ deferred ]);
+				if(evt.mapPoint){
+					map.infoWindow.show(evt.mapPoint);
+				}else{
+					map.infoWindow.show(evt.geometry);
+				}	
+			}
+			function doFind(){					
+				var srchfield = "COUNTY"; 				
+				findParams.searchFields = [srchfield];
+				findParams.layerIds = [1];
+				map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
+				findParams.searchText = dojo.byId("countySearch").value;
+				findTask.execute(findParams, showResults, errorSrch);					
+			}
+			function errorSrch(error){
+				alert(error);
+			}
+			function showResults(results){
+				
+				 if (results.length == 0) {
+                    alert('No results found. Please try again.');
+                    resetMap();
+                    return false;
+                }
+				//alert(results.length);
+				map.graphics.clear();
+				
+				var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID,
+				  new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT,
+				  new dojo.Color([255,0,0]), 2),new dojo.Color([255,255,0,0.25]));
+				
+				//create array of attributes
+				var items = dojo.map(results, function (result) {
+					var graphic = new esri.Graphic(result.feature.toJson());
+					graphic.setSymbol(symbol);
+					map.graphics.add(graphic);
+					return result.feature.attributes;
+                });
+				
+				var currentGraphic = map.graphics.graphics[0]; 
+				
+				map.setExtent(currentGraphic._extent);										
+			}
+			function printIt()
+			{
+				var win = window.open();
+				self.focus();
+				win.document.open();
+				win.document.write('<'+'html'+'><'+'head'+'><'+'style'+'>');
+				win.document.write('body, td { font-family: Verdana; font-size: 12pt;}');
+				 win.document.write(' th { font-weight: bold; text-align:left;}');
+				win.document.write('<'+'/'+'style'+'><'+'/'+'head'+'><'+'body'+'>');
+				win.document.write('<table style=\"width:100%\"><th >Facility</th><th >Address</th><th >City</th><th >State</th>');
+
+				store.fetch({
+					 onComplete: function (items) {
+						 dojo.forEach(items, function (item, index) { 
+							win.document.write('<tr><td>' + item.OW_NAME + '</td><td>' + item.OW_ADD + '</td><td>' + item.OW_CITY + '</td><td>' + item.OW_STATE + '</td></tr>');
+						 });
+					 }
+				});
+				win.document.write('</table>');
+				win.document.write('<'+'/'+'body'+'><'+'/'+'html'+'>');
+				win.document.close();
+				win.print();
+				win.close();
+			}
+			function resetMap(){
+                dojo.byId('map_name').value = "AR Fire Districts";
+				dojo.byId('countySearch').value = "";
+				map.setExtent(initialExtent);
+				map.graphics.clear();
+				map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2,8,9]);
+			}
+			function selectTab(tab){
+				dijit.byId('accordion').selectChild( tab );
+			}
+
+			function getFDContent(graphic){
+				content = "<table>";
+				content += "<tr><td>Fire District:</td><td>"+ graphic.attributes.NAME+" </td></tr>";
+				content += "<tr><td>COUNTY:</td><td>"+ graphic.attributes.COUNTY+" </td></tr>";
+				content +="<tr><td>LOPFI Member:</td><td>"+ graphic.attributes.LOPFI_MBR +"</td></tr>";
+				content +="<tr><td>Population:</td><td>"+ graphic.attributes.Population  +"</td></tr>";
+				content +="<tr><td>Area:</td><td>"+graphic.attributes.Area   +"</td></tr>";				
+				content += "</table>";
+				return content;
+			}						
+			//not used debug function
+			function layerList(){
+           
+				var lyrs = map._layers.aecam;
+				
+				alert(lyrs.visibleLayers);
+				map.removeLayer(0);
+			
+			}
+
+		  
+            dojo.addOnLoad(init);
+			
+        </script>
+    </head>
+	<body class="claro">
+	<div class="bg_pg2">
+			 <div id="logo"  onclick="location.href='#';"> 
+				<!--img src="img/uddc-logo-banner-copy.jpg" width="1000" height="150"-->				
+			</div>        			
+	</div><br/><br/>
+        <div id="content" dojotype="dijit.layout.BorderContainer" design="headline" gutters="true" style="width: 100%; height: 100%; margin: 0;">			
+            <div dojotype="dijit.layout.ContentPane" id="leftPane" region="left" splitter="true" style="width: 350px;">
+				<div dojoType="dijit.layout.AccordionContainer" style="height: 300px;" id="accordion">
+					<div dojoType="dijit.layout.ContentPane" title="Table of Contents" selected="true" id="accToc">
+                        <div id="tocDiv">
+						</div><Br/><hr/>
+						County Search:<br/>
+						<div id="countySearch"></div>&nbsp;&nbsp;<button type="button" id="searchButton" onclick="doFind();">Search</button><br/><br/><hr/>
+						Document Title: <textarea rows=5 cols=30 id="map_name" name="map_name">AR Fire Districts</textarea><br /><br/>
+						<span id="printButton"></span>&nbsp;
+					</div>									
+				</div>	
+				<!--div dojoType="dijit.layout.ContentPane" title="Map Search" style="display:none;">
+						<table cellpadding=5>
+						<tr><td>For Address:</td>
+							<td><input id="parcelSsearch"></td></tr><tr><td> <button type="button" id="searchButton" onclick="doFind();">Search</button></td>
+						</tr></table>	
+					</div>
+					<!--div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'" title="Search Results" style="height:40px;" id='srchResults'>
+						
+					</div>					
+					<div dojoType="dijit.layout.ContentPane" title="Print" style="display:none;">
+						Map Title: <textarea rows=5 cols=30 id="map_name" name="map_name">UDDC</textarea><br /><br/>
+						<span id="printButtons"></span>&nbsp;
+						<!--button id="btnPrint" dojotype="dijit.form.Button" onClick="printIt(document.getElementById('grid').innerHTML); return false;" title="Print List" value="Print List">Print Data Grid</button>
+					</div-->	
+            </div>			
+            <div id="map" dojotype="dijit.layout.ContentPane" region="center">		
+				<span style="float:right;z-index:99;position:absolute;top:10px;right:20px;">						
+						<button data-dojo-type="dijit.form.Button" data-dojo-props="iconClass:'dijitEditorIconPaste', showLabel: true" onclick="navToolbar.zoomToPrevExtent();" type="button">Previous Extent</button>
+						<button data-dojo-type="dijit.form.Button" data-dojo-props="iconClass:'dijitPrintIcon', showLabel: true" onclick="resetMap();selectTab('accToc');" type="button">Reset Map</button>
+				</span>
+            </div>
+        </div>
+		<div id="footer"><center>
+			&copy; 2013 <a  href="#">Arkansas Fire Districts</a></center>
+		</div>
+
+    </body>
+</html>
