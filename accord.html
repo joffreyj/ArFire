@@ -1,6 +1,53 @@
-<div class="dojoxFloatingPaneWrapper">
+<script type="text/javascript">
+function doDistFind(){		
+				var srchfield = "OBJECTID_1"; 	
+				var OID='';
+				findParams.searchFields = [srchfield];
+				findParams.layerIds = [1];
+				map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
+				theStore.fetch( { query: { NAME: dojo.byId("distSearch").value },  
+				   onItem: function(item) {
+						//alert(item.OBJECTID_1);
+						OID=item.OBJECTID_1;
+				   }
+				});				
+				findParams.searchText = OID[0];
+				findTask.execute(findParams, showResults, errorSrch);		
+				//findParams.searchText = dojo.byId("distSearch").value;							
+		}
+		function showResults(results){
+			
+			 if (results.length == 0) {
+                alert('No results found. Please try again.');
+                resetMap();
+                return false;
+            }
+			//alert(results.length);
+			map.graphics.clear();
+			
+			var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID,
+			  new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT,
+			  new dojo.Color([255,0,0]), 2),new dojo.Color([255,255,0,0.25]));
+			
+			//create array of attributes
+			var items = dojo.map(results, function (result) {
+				var graphic = new esri.Graphic(result.feature.toJson());
+				graphic.setSymbol(symbol);
+				map.graphics.add(graphic);
+				return result.feature.attributes;
+            });
+			
+			var currentGraphic = map.graphics.graphics[0]; 
+			
+			map.setExtent(currentGraphic._extent);										
+		}	
+        function errorSrch(error){
+			alert(error);
+		}		
+</script>		
+<!--div class="dojoxFloatingPaneWrapper"-->
 		<!--div dojoType="dijit.layout.AccordionContainer" style="height: 300px;" id="accordion"-->
-			<div dojoType="dijit.layout.ContentPane" title="Search / Print" selected="true" id="accToc">
+			<div dojoType="dojox.layout.ContentPane" title="Search / Print" id="accToc">
 				<!--div id="tocDiv">
 				</div><Br/><hr/-->
 				<strong>Search</strong><br/><br/>
@@ -23,5 +70,5 @@
 				<strong>Print</strong><br/><br/>
 				Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">AR Fire Districts</textarea><br />
 				<span id="printButton"></span>&nbsp;
-			<!--/div-->									
-</div>
+			</div>									
+<!--/div-->
