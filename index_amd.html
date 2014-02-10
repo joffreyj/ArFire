@@ -303,19 +303,19 @@
 					switch (result.layerName){
 						case 'County':
 							template.setContent(getCountyContent);
-							feature.setInfoTemplate(template);
 							break;
 						case 'Fire Districts':
 							template.setContent(getFDContent);
-							feature.setInfoTemplate(template);
+							//feature.setInfoTemplate(template);
 							break;
 						case 'Parcels':
 							template.setContent(getParcelContent);
-							feature.setInfoTemplate(template);
+						//	feature.setInfoTemplate(template);
 							break;							
 						default:
 							return false;
-					}					
+					}		
+					feature.setInfoTemplate(template);
 					return feature;
 				  });
 				});

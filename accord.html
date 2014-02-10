@@ -1,74 +1,81 @@
 <script type="text/javascript">
 function doDistFind(){		
-				var srchfield = "OBJECTID_1"; 	
-				var OID='';
-				findParams.searchFields = [srchfield];
-				findParams.layerIds = [1];
-				map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
-				theStore.fetch( { query: { NAME: dojo.byId("distSearch").value },  
-				   onItem: function(item) {
-						//alert(item.OBJECTID_1);
-						OID=item.OBJECTID_1;
-				   }
-				});				
-				findParams.searchText = OID[0];
-				findTask.execute(findParams, showResults, errorSrch);		
-				//findParams.searchText = dojo.byId("distSearch").value;							
-		}
-		function showResults(results){
-			
-			 if (results.length == 0) {
-                alert('No results found. Please try again.');
-                resetMap();
-                return false;
-            }
-			//alert(results.length);
-			map.graphics.clear();
-			
-			var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID,
-			  new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT,
-			  new dojo.Color([255,0,0]), 2),new dojo.Color([255,255,0,0.25]));
-			
-			//create array of attributes
-			var items = dojo.map(results, function (result) {
-				var graphic = new esri.Graphic(result.feature.toJson());
-				graphic.setSymbol(symbol);
-				map.graphics.add(graphic);
-				return result.feature.attributes;
-            });
-			
-			var currentGraphic = map.graphics.graphics[0]; 
-			
-			map.setExtent(currentGraphic._extent);										
-		}	
-        function errorSrch(error){
-			alert(error);
-		}		
+		var srchfield = "OBJECTID_1"; 	
+		var OID='';
+		findParams.searchFields = [srchfield];
+		findParams.layerIds = [1];
+		map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
+		theStore.fetch( { query: { NAME: dojo.byId("distSearch").value },  
+		   onItem: function(item) {
+				//alert(item.OBJECTID_1);
+				OID=item.OBJECTID_1;
+		   }
+		});				
+		findParams.searchText = OID[0];
+		findTask.execute(findParams, showResults, errorSrch);		
+}
+function doFind(){					
+	var srchfield = "NAME10"; 				
+	findParams.searchFields = [srchfield];
+	findParams.layerIds = [2];
+	map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
+	
+	findParams.searchText = dojo.byId("countySearch").value;
+	findTask.execute(findParams, showResults, errorSrch);					
+}
+function showResults(results){
+	
+	 if (results.length == 0) {
+        alert('No results found. Please try again.');
+        resetMap();
+        return false;
+    }
+	//alert(results.length);
+	map.graphics.clear();
+	
+	var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_SOLID,
+	  new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT,
+	  new dojo.Color([255,0,0]), 2),new dojo.Color([255,255,0,0.25]));
+	
+	//create array of attributes
+	var items = dojo.map(results, function (result) {
+		var graphic = new esri.Graphic(result.feature.toJson());
+		graphic.setSymbol(symbol);
+		map.graphics.add(graphic);
+		return result.feature.attributes;
+    });
+	
+	var currentGraphic = map.graphics.graphics[0]; 
+	
+	map.setExtent(currentGraphic._extent);										
+}	
+function errorSrch(error){
+	alert(error);
+}
+function searchToggle(which){
+	dojo.style(dojo.byId("distDiv"), "display", "none");
+	dojo.style(dojo.byId("countyDiv"), "display", "none");
+	dojo.style(dojo.byId(which.value), "display", "block");
+}
 </script>		
-<!--div class="dojoxFloatingPaneWrapper"-->
-		<!--div dojoType="dijit.layout.AccordionContainer" style="height: 300px;" id="accordion"-->
-			<div dojoType="dojox.layout.ContentPane" title="Search / Print" id="accToc">
-				<!--div id="tocDiv">
-				</div><Br/><hr/-->
-				<strong>Search</strong><br/><br/>
-				<input id="radpar" type="radio" value="distDiv" checked="checked" name="searchParam" onChange="searchToggle(this)">
-				Fire District
-				<input id="radpro" type="radio" value="countyDiv" name="searchParam" onChange="searchToggle(this);">
-				County
-				<br>
-				<div id="distDiv" style="display:block">
-				<br/>
-				<!--div id="distSearch"></div-->
-				<input id="distSearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME" name="distSearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME', descending:false}]}" placeHolder="Select a fire dist from the list"/>
-				&nbsp;&nbsp;<button type="button" id="searchDistButton" onclick="doDistFind();">Search</button><br/><br/>
-				</div>
-				<div id="countyDiv" style="display:none">
-				<br/>
-				<input id="countySearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME10" name="countySearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME10', descending:false}]}" placeHolder="Select a county from the list"/>
-				&nbsp;&nbsp;<button type="button" id="searchButton" onclick="doFind();">Search</button><br/><br/></div>
-				<hr/>
-				<strong>Print</strong><br/><br/>
-				Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">AR Fire Districts</textarea><br />
-				<span id="printButton"></span>&nbsp;
-			</div>									
-<!--/div-->
+<div dojoType="dojox.layout.ContentPane" title="Search / Print" id="accToc">
+	<strong>Search</strong><br/><br/>
+	<input id="radpar" type="radio" value="distDiv" checked="checked" name="searchParam" onChange="searchToggle(this);">
+	Fire District
+	<input id="radpro" type="radio" value="countyDiv" name="searchParam" onChange="searchToggle(this);">
+	County
+	<br>
+	<div id="distDiv" style="display:block">
+	<br/>
+	<input id="distSearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME" name="distSearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME', descending:false}]}" placeHolder="Select a fire dist from the list"/>
+	&nbsp;&nbsp;<button type="button" id="searchDistButton" onclick="doDistFind();">Search</button><br/><br/>
+	</div>
+	<div id="countyDiv" style="display:none">
+	<br/>
+	<input id="countySearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME10" name="countySearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME10', descending:false}]}" placeHolder="Select a county from the list"/>
+	&nbsp;&nbsp;<button type="button" id="searchButton" onclick="doFind();">Search</button><br/><br/></div>
+	<hr/>
+	<strong>Print</strong><br/><br/>
+	Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">AR Fire Districts</textarea><br />
+	<span id="printButton"></span>&nbsp;
+</div>
