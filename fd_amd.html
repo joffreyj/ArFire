@@ -7,17 +7,25 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
     <title>AR Fire Districts</title> 
 
-    <!--link rel="stylesheet" href="http://js.arcgis.com/3.8/js/dojo/dijit/themes/claro/claro.css"> 
-    <link rel="stylesheet" href="http://js.arcgis.com/3.8/js/esri/css/esri.css"-->
+    <!--link rel="stylesheet" href="http://js.arcgis.com/3.8/js/dojo/dijit/themes/claro/claro.css"--> 
+    
 	<style type="text/css">
 		@import  "http://js.arcgis.com/3.4/js/dojo/dijit/themes/claro/claro.css";
-		@import "http://js.arcgis.com/3.4/js/esri/css/esri.css";
+		@import "http://js.arcgis.com/3.7/js/esri/css/esri.css";
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/FloatingPane.css";
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/ResizeHandle.css";
 		@import "css/ArFire.css"
+		@import "home/css/HomeButton.css"
 	</style>
-
+    <link rel="stylesheet" href="home/css/HomeButton.css">
     <style>
+        #HomeButton {
+          position: absolute;
+          top: 82px;
+          left: 20px;
+          z-index: 50;
+        }
+        
 		html, body, #mapDiv {
 			padding:0;
 			margin:0;
@@ -64,15 +72,35 @@
             border:solid 4px #80a8c1;
             padding:8px;
         }
+        .dojoxDock {
+            display: block;
+            border: 4px solid black;
+            position: absolute;
+            padding: 0;
+            margin: 0;
+            background: #fcfcfc;
+        }
     </style>
 	<script type="text/javascript">
-		var dojoConfig = {
+		/*var dojoConfig = {
 			parseOnLoad: false,
 			async: true,
 			packages: [{
 				name: "floatpane",
 				"location": location.pathname.replace(/\/[^/]+$/, "")+'/floatpane' // may need to revise it based on your project file structure
 			}]
+		};*/
+		var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+			var dojoConfig = {
+				// The locationPath logic below may look confusing but all its doing is 
+				// enabling us to load the api from a CDN and load local modules from the correct location.
+				packages: [{
+					name: "modules",
+					location: package_path + '/home/js'
+				}, {
+					name: "zesri",
+					location: package_path + '/home/js'
+				}]
 		};
 	</script>
     <script src="http://js.arcgis.com/3.4/"></script> 
@@ -99,6 +127,7 @@
 		"esri/layers/FeatureLayer",
 		"esri/toolbars/navigation",
 		
+		"modules/HomeButton",
 		"dojox/layout/Dock",
 		"dojox/layout/ResizeHandle",
 		"dijit/layout/AccordionContainer",
@@ -113,10 +142,13 @@
 		"esri/tasks/FindParameters",
 		"dojo/data/ItemFileReadStore",
 		"dojo/dom",
+		"dojo/query",
+		"dojo/dom-attr",
 		"dojo/domReady!"
       ], function(
         Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,
-		Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom
+		HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom,
+		djQuery, domAttr
       ) {
         parser.parse();
 			
@@ -149,6 +181,13 @@
         function initOperationalLayer() {
 		
 			var navToolbar = new Navigation(map);
+			
+			var zoomInDiv = djQuery(".esriSimpleSliderIncrementButton");
+			domAttr.set(zoomInDiv[0],"title","Zoom in");
+			  
+			var zoomOutDiv = djQuery(".esriSimpleSliderDecrementButton");
+			domAttr.set(zoomOutDiv[0],"title","Zoom out");
+			
 			//Create Find Task using Post code layer
 			findTask = new FindTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer");
 			//Create the find parameters
@@ -165,13 +204,14 @@
 			  closable: false,
 			  dockable: true,
 			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;top:80px;right:55px;width:370px;height:425px;visibility:hidden;overflow:hidden;',
+			  style: 'position:absolute;bottom:60px;right:20px;width:370px;height:405px;visibility:visible;overflow:hidden;',
 			  href: 'accord.html',
 			  //content: dom.byId('mapinfofpp'),
 			  preload: true
 			},dojo.byId("mapinfofp"));
 			//mapinfofp.set("content",fpContent);
 			mapinfofp.startup();
+			//mapinfofp.show();
 			
 			mapinfofp.on('load', function(){			
 			    queryDistTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer/1");
@@ -189,6 +229,7 @@
 				runQuery();	
 				
 				createPrintDijit(dojo.byId('map_name').value);
+				mapinfofp.bringToTop();
 			});		
 			/*mapinfofp.on('focus', function () {
 				mapinfofp.bringToTop();			
@@ -206,6 +247,11 @@
             //overviewMap.hide();
 			//dojo.connect(searchDistButton,"onclick",setDistPrintTitle);	
         }
+        var home = new HomeButton({
+              map: map
+              //theme: "esriSimpleSlider esriSimpleSliderVertical esriSimpleSliderTL esriSimpleSliderIncrementButton"
+          }, "HomeButton");
+          home.startup();
 		
 		function createPrintDijit(printTitle) {
 				var layoutTemplate, templateNames, mapOnlyIndex, templates;
@@ -425,14 +471,15 @@
 </script> 
 </head> 
 <body class="claro">
-    <div id="mapinfofp" style="visibility:hidden" class="dojoxFloatingPaneWrapper">
+    <div id="mapinfofp" style="visibility:visible" class="dojoxFloatingPaneWrapper">
     </div>
-    <span style="float:right;z-index:99;position:absolute;top:10px;right:20px;">						
+    <!--span style="float:right;z-index:99;position:absolute;top:10px;right:20px;">						
     	<button data-dojo-type="dijit.form.Button" data-dojo-props="iconClass:'dijitEditorIconPaste', showLabel: true" onclick="navToolbar.zoomToPrevExtent();" type="button">Previous Extent</button>
     	<button data-dojo-type="dijit.form.Button" data-dojo-props="iconClass:'dijitPrintIcon', showLabel: true" onclick="resetMap();" type="button">Reset Map</button>
-    </span>	
+    </span-->	
     <div id="mapDiv">
-        <div id="ovWin" class="shadow" style="position:absolute;z-Index:998; width:200px;height:200px; ">
+        <div id="HomeButton"></div>	
+        <div id="ovWin" class="shadow" style="position:absolute;top:40px;right:20px;z-Index:998; width:200px;height:200px; ">
             <div id="overviewDiv" style="width:100%;height:100%;">
             </div>
         </div>
