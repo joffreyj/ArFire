@@ -103,7 +103,7 @@
 				}]
 		};
 	</script>
-    <script src="http://js.arcgis.com/3.4/"></script> 
+    <script src="http://js.arcgis.com/3.6/"></script> 
     <script> 
 		var map;
 		var initialExtent;
@@ -144,11 +144,14 @@
 		"dojo/dom",
 		"dojo/query",
 		"dojo/dom-attr",
+		"dijit/form/RadioButton",
+		"dojo/fx/Toggler",
+		"dojo/on",
 		"dojo/domReady!"
       ], function(
         Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,
 		HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom,
-		djQuery, domAttr
+		djQuery, domAttr, RadioButton, Toggler, on
       ) {
         parser.parse();
 			
@@ -248,11 +251,38 @@
 			//dojo.connect(searchDistButton,"onclick",setDistPrintTitle);	
         }
         var home = new HomeButton({
-              map: map
-              //theme: "esriSimpleSlider esriSimpleSliderVertical esriSimpleSliderTL esriSimpleSliderIncrementButton"
-          }, "HomeButton");
-          home.startup();
+          map: map
+        }, "HomeButton");
+        home.startup();
+        
+        var toggler = new Toggler({
+            node: "ovWin"
+          });
+          toggler.hide();
+          on(dom.byId("expandOV"), "click", function(e){
+            toggler.show();
+            domAttr.set("expandOV","style","visibility:hidden");
+            domAttr.set("collapseOV","style","visibility:visible");
+          });
+          on(dom.byId("collapseOV"), "click", function(e){
+            toggler.hide();
+            domAttr.set("expandOV","style","visibility:visible");
+            domAttr.set("collapseOV","style","visibility:hidden");
+          });
+         
+        //create the radio buttons to toggle between the school district search and the city search
+         /* var radpar = new RadioButton({
+              checked: true,
+              value: "distDiv",
+              name: "searchParam",
+              onChange: function (b) { if (b) searchToggle(this.value); }
+          }, "radpar");*/
 		
+	    //tie the onChange events of the radio buttons to toggle between the school district and city
+         /* dijit.byId('radpar').on('change', function () {
+              var value = this.value;
+          });*/
+          
 		function createPrintDijit(printTitle) {
 				var layoutTemplate, templateNames, mapOnlyIndex, templates;
 								
@@ -479,9 +509,11 @@
     </span-->	
     <div id="mapDiv">
         <div id="HomeButton"></div>	
-        <div id="ovWin" class="shadow" style="position:absolute;top:40px;right:20px;z-Index:998; width:200px;height:200px; ">
-            <div id="overviewDiv" style="width:100%;height:100%;">
-            </div>
+    </div>
+    <div id="expandOV" style="visibility:visible;"><img border="1" src="img/expand-top-right.png" title="Expand Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999"/></div>
+    <div id="collapseOV" style="visibility:hidden;"><img border="1" src="img/collapse-top-right.png" title="Collapse Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999;;"/></div>
+    <div id="ovWin" class="shadow" style="position:absolute;top:0px;right:0px;z-Index:998; width:200px;height:200px;">
+        <div id="overviewDiv" style="width:100%;height:100%;">
         </div>
     </div>
 </body> 

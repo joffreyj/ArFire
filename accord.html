@@ -12,7 +12,8 @@ function doDistFind(){
 		   }
 		});				
 		findParams.searchText = OID[0];
-		findTask.execute(findParams, showResults, errorSrch);		
+		findTask.execute(findParams, showResults, errorSrch);	
+		dojo.byId("map_name").value = dojo.byId("distSearch").value + " Fire District, Arkansas";
 }
 function doFind(){					
 	var srchfield = "NAME10"; 				
@@ -21,7 +22,8 @@ function doFind(){
 	map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
 	
 	findParams.searchText = dojo.byId("countySearch").value;
-	findTask.execute(findParams, showResults, errorSrch);					
+	findTask.execute(findParams, showResults, errorSrch);	
+	dojo.byId("map_name").value = dojo.byId("countySearch").value + " County, Arkansas - Fire Districts";
 }
 function showResults(results){
 	
@@ -60,10 +62,11 @@ function searchToggle(which){
 </script>		
 <div dojoType="dojox.layout.ContentPane" title="Search / Print" id="accToc">
 	<strong>Search</strong><br/><br/>
+	<!--input type="radio" name="searchParam" id="radpar" checked value="distDiv"/> <label for="radpar">School District</label-->
 	<input id="radpar" type="radio" value="distDiv" checked="checked" name="searchParam" onChange="searchToggle(this);">
-	Fire District
+	<label for="radpar">Fire District</label>
 	<input id="radpro" type="radio" value="countyDiv" name="searchParam" onChange="searchToggle(this);">
-	County
+	<label for="radpro">County</label>
 	<br>
 	<div id="distDiv" style="display:block">
 	<br/>
@@ -76,6 +79,6 @@ function searchToggle(which){
 	&nbsp;&nbsp;<button type="button" id="searchButton" onclick="doFind();">Search</button><br/><br/></div>
 	<hr/>
 	<strong>Print</strong><br/><br/>
-	Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">AR Fire Districts</textarea><br />
+	Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">Arkansas Fire Districts</textarea><br />
 	<span id="printButton"></span>&nbsp;
 </div>
