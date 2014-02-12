@@ -15,9 +15,11 @@
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/FloatingPane.css";
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/ResizeHandle.css";
 		@import "css/ArFire.css"
-		@import "home/css/HomeButton.css"
+		@import "css/mapinfofp.css"
 	</style>
     <link rel="stylesheet" href="home/css/HomeButton.css">
+    <link rel="stylesheet" href="css/mapinfofp.css">
+    <link rel="stylesheet" href="css/prninfo.css">
     <style>
         #HomeButton {
           position: absolute;
@@ -26,10 +28,25 @@
           z-index: 50;
         }
         
+        #MapInfo {
+          position: absolute;
+          top: 113px;
+          left: 20px;
+          z-index: 50;
+        }
+        
+        #PrintInfo {
+          position: absolute;
+          top: 144px;
+          left: 20px;
+          z-index: 50;
+        }
+        
 		html, body, #mapDiv {
 			padding:0;
 			margin:0;
 			height:100%;
+			width:100%;
 		}
 	  
 		/* floating pane */
@@ -43,7 +60,7 @@
 		.dojoxFloatingPaneTitle {
 			border: 1px solid #ffffff;
 			border-top: none;
-			background-color: #abd6ff;
+			background-color: #eee;
 			background-image: url("http://ajax.googleapis.com/ajax/libs/dojo/1.9.1/dijit/themes/claro/images/standardGradient.png");
 			background-repeat: repeat-x;
 			background-image: -moz-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
@@ -78,7 +95,8 @@
             position: absolute;
             padding: 0;
             margin: 0;
-            background: #fcfcfc;
+            background: darkgray;
+            width:80%;
         }
     </style>
 	<script type="text/javascript">
@@ -109,6 +127,7 @@
 		var initialExtent;
 		var floatPane;
 		var mapinfofp;
+		var printinfofp;
 		var theStore;
 		var countyStore;
       require([
@@ -147,11 +166,12 @@
 		"dijit/form/RadioButton",
 		"dojo/fx/Toggler",
 		"dojo/on",
+		"dojo/_base/declare",
 		"dojo/domReady!"
       ], function(
         Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,
 		HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom,
-		djQuery, domAttr, RadioButton, Toggler, on
+		djQuery, domAttr, RadioButton, Toggler, on, declare
       ) {
         parser.parse();
 			
@@ -167,6 +187,32 @@
           zoom: 6
         });
 		
+        var ConstrainedFloatingPane = declare(FloatingPane, {
+            
+            postCreate: function() {
+                this.inherited(arguments);
+                this.moveable = new dojo.dnd.move.constrainedMoveable(
+                    this.domNode, {
+                        handle: this.focusNode,
+                        constraints: function() {
+                            var coordsBody = dojo.coords(dojo.body());
+                            // or
+                            var coordsWindow = {
+                                l: 0,
+                                t: 0,
+                                w: window.innerWidth,
+                                h: window.innerHeight                            
+                            };
+                            
+                            return coordsWindow;
+                        },
+                        within: true
+                    }
+                );                            
+            }
+            
+        });		
+        
 		var infoTemplate = new InfoTemplate("${NAME10}", "County:  ${NAME10}");
 		
 		var Ar_Fire_Distrcts = new ArcGISDynamicMapServiceLayer("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer", {
@@ -182,7 +228,8 @@
 		s1=dojo.byId('srchTool');
 		
         function initOperationalLayer() {
-		
+		    toggler.hide();
+		    
 			var navToolbar = new Navigation(map);
 			
 			var zoomInDiv = djQuery(".esriSimpleSliderIncrementButton");
@@ -201,20 +248,18 @@
 			//floating window for map search
 			mapinfofp = new FloatingPane({
 			  id: 'mapinfofp',
-			  title: 'Search / Print',
+			  title: 'Search',
 			  resizable: true,
 			  //resizeAxis: null,
 			  closable: false,
-			  dockable: true,
+			  dockable: false,
 			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;bottom:60px;right:20px;width:370px;height:405px;visibility:visible;overflow:hidden;',
+			  style: 'position:absolute;bottom:60px;right:20px;width:370px;height:135px;visibility:hidden;overflow:hidden;',
 			  href: 'accord.html',
 			  //content: dom.byId('mapinfofpp'),
 			  preload: true
 			},dojo.byId("mapinfofp"));
-			//mapinfofp.set("content",fpContent);
-			mapinfofp.startup();
-			//mapinfofp.show();
+
 			
 			mapinfofp.on('load', function(){			
 			    queryDistTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer/1");
@@ -230,16 +275,39 @@
 				query.returnGeometry = false;
 				query.outFields = ["OBJECTID","NAME10"];					
 				runQuery();	
-				
-				createPrintDijit(dojo.byId('map_name').value);
-				mapinfofp.bringToTop();
+
 			});		
-			/*mapinfofp.on('focus', function () {
-				mapinfofp.bringToTop();			
-			});*/
+
 			mapinfofp.on('show', function () {
-				mapinfofp.bringToTop();
+			        domAttr.set("mmpp","style","background-color:#ccc");
+				    mapinfofp.bringToTop();
 			});
+
+			
+			//floating window for print
+			printinfofp = new FloatingPane({
+			  id: 'printinfofp',
+			  title: 'Print',
+			  resizable: true,
+			  //resizeAxis: null,
+			  closable: false,
+			  dockable: false,
+			  dockTo: dojox.layout.dock,
+			  style: 'position:absolute;bottom:60px;left:20px;width:370px;height:200px;visibility:hidden;overflow:hidden;',
+			  href: 'printer.html',
+			  //content: dom.byId('mapinfofpp'),
+			  preload: true
+			},dojo.byId("printinfofp"));
+
+			printinfofp.on('show', function () {
+			        domAttr.set("print","style","background-color:#ccc");
+				    printinfofp.bringToTop();
+			});
+			
+			printinfofp.on('load', function(){			
+				createPrintDijit(dojo.byId('map_name').value);
+				printinfofp.bringToTop();
+			});	
 			
 			var overviewMap = new OverviewMap({
                 map: map,
@@ -258,7 +326,7 @@
         var toggler = new Toggler({
             node: "ovWin"
           });
-          toggler.hide();
+          
           on(dom.byId("expandOV"), "click", function(e){
             toggler.show();
             domAttr.set("expandOV","style","visibility:hidden");
@@ -269,6 +337,38 @@
             domAttr.set("expandOV","style","visibility:visible");
             domAttr.set("collapseOV","style","visibility:hidden");
           });
+         
+         
+         var srchToggler = new Toggler({
+            node: "mapinfofp"
+          });
+          
+          on(dom.byId("mmpp"), "click", function(e){
+             if(dojo.style("mapinfofp", "visibility") == "visible"){
+                 mapinfofp.hide();
+                 domAttr.set("mmpp","style","background-color:fff");
+             }else{
+                mapinfofp.show();
+             }    
+          });
+          
+          var printToggler = new Toggler({
+            node: "printinfofp"
+          });
+          
+          on(dom.byId("print"), "click", function(e){
+             if(dojo.style("printinfofp", "visibility") == "visible"){
+                 printinfofp.hide();
+                 domAttr.set("print","style","background-color:fff");
+             }else{
+                printinfofp.show();
+             }    
+          });
+          /*on(dom.byId("collapseOV"), "click", function(e){
+            toggler.hide();
+            domAttr.set("expandOV","style","visibility:visible");
+            domAttr.set("collapseOV","style","visibility:hidden");
+          });*/
          
         //create the radio buttons to toggle between the school district search and the city search
          /* var radpar = new RadioButton({
@@ -501,14 +601,21 @@
 </script> 
 </head> 
 <body class="claro">
-    <div id="mapinfofp" style="visibility:visible" class="dojoxFloatingPaneWrapper">
-    </div>
-    <!--span style="float:right;z-index:99;position:absolute;top:10px;right:20px;">						
-    	<button data-dojo-type="dijit.form.Button" data-dojo-props="iconClass:'dijitEditorIconPaste', showLabel: true" onclick="navToolbar.zoomToPrevExtent();" type="button">Previous Extent</button>
-    	<button data-dojo-type="dijit.form.Button" data-dojo-props="iconClass:'dijitPrintIcon', showLabel: true" onclick="resetMap();" type="button">Reset Map</button>
-    </span-->	
+    <div id="mapinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
+    <div id="printinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="mapDiv">
         <div id="HomeButton"></div>	
+        <div class="MapInfo" role="presentation" id="MapInfo" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Search" class="mpinfo" id="mmpp"></div>
+            </div>
+        </div>
+        <div class="PrintInfo" role="presentation" id="PrintInfo" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Print" class="prninfo" id="print"></div>
+            </div>
+        </div>
+        <!--div id="MpInfo" class="mapinfofp"></div-->
     </div>
     <div id="expandOV" style="visibility:visible;"><img border="1" src="img/expand-top-right.png" title="Expand Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999"/></div>
     <div id="collapseOV" style="visibility:hidden;"><img border="1" src="img/collapse-top-right.png" title="Collapse Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999;;"/></div>

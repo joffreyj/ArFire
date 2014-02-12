@@ -60,8 +60,8 @@ function searchToggle(which){
 	dojo.style(dojo.byId(which.value), "display", "block");
 }
 </script>		
-<div dojoType="dojox.layout.ContentPane" title="Search / Print" id="accToc">
-	<strong>Search</strong><br/><br/>
+<div dojoType="dojox.layout.ContentPane" title="Search" id="accToc">
+	<!--strong>Search</strong><br/><br/-->
 	<!--input type="radio" name="searchParam" id="radpar" checked value="distDiv"/> <label for="radpar">School District</label-->
 	<input id="radpar" type="radio" value="distDiv" checked="checked" name="searchParam" onChange="searchToggle(this);">
 	<label for="radpar">Fire District</label>
@@ -77,8 +77,8 @@ function searchToggle(which){
 	<br/>
 	<input id="countySearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME10" name="countySearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME10', descending:false}]}" placeHolder="Select a county from the list"/>
 	&nbsp;&nbsp;<button type="button" id="searchButton" onclick="doFind();">Search</button><br/><br/></div>
-	<hr/>
+	<!--hr/>
 	<strong>Print</strong><br/><br/>
 	Document Title:<br/> <textarea rows=5 cols=30 id="map_name" name="map_name">Arkansas Fire Districts</textarea><br />
-	<span id="printButton"></span>&nbsp;
+	<span id="printButton"></span-->&nbsp;
 </div>
