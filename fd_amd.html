@@ -14,12 +14,12 @@
 		@import "http://js.arcgis.com/3.7/js/esri/css/esri.css";
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/FloatingPane.css";
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/ResizeHandle.css";
-		@import "css/ArFire.css"
-		@import "css/mapinfofp.css"
 	</style>
     <link rel="stylesheet" href="home/css/HomeButton.css">
     <link rel="stylesheet" href="css/mapinfofp.css">
     <link rel="stylesheet" href="css/prninfo.css">
+    <link rel="stylesheet" href="css/overview.css">
+    <link rel="stylesheet" href="css/ArFire.css">
     <style>
         #HomeButton {
           position: absolute;
@@ -30,14 +30,21 @@
         
         #MapInfo {
           position: absolute;
-          top: 113px;
+          top: 145px;
           left: 20px;
           z-index: 50;
         }
         
         #PrintInfo {
           position: absolute;
-          top: 144px;
+          top: 177px;
+          left: 20px;
+          z-index: 50;
+        }
+        
+        #OverviewInfo {
+          position: absolute;
+          top: 114px;
           left: 20px;
           z-index: 50;
         }
@@ -55,7 +62,7 @@
 		}
 		.dojoxFloatingPane {
 			padding:0 !important;
-			border:solid 1px #769DC0 !important;
+			border:solid 1px #eee !important;
 		}
 		.dojoxFloatingPaneTitle {
 			border: 1px solid #ffffff;
@@ -86,7 +93,7 @@
             -webkit-box-shadow:0 6px 3px -3px #888;
             box-shadow:0 6px 3px -3px #888;
             background-color:#FFF;
-            border:solid 4px #80a8c1;
+            border:solid 4px #eee;
             padding:8px;
         }
         .dojoxDock {
@@ -130,6 +137,7 @@
 		var printinfofp;
 		var theStore;
 		var countyStore;
+		var overviewMap;
       require([
         "esri/map", 
         "esri/dijit/OverviewMap",
@@ -249,12 +257,12 @@
 			mapinfofp = new FloatingPane({
 			  id: 'mapinfofp',
 			  title: 'Search',
-			  resizable: true,
+			  resizable: false,
 			  //resizeAxis: null,
 			  closable: false,
 			  dockable: false,
 			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;bottom:60px;right:20px;width:370px;height:135px;visibility:hidden;overflow:hidden;',
+			  style: 'position:absolute;bottom:250px;left:20px;width:370px;height:135px;visibility:hidden;overflow:hidden;',
 			  href: 'accord.html',
 			  //content: dom.byId('mapinfofpp'),
 			  preload: true
@@ -288,7 +296,7 @@
 			printinfofp = new FloatingPane({
 			  id: 'printinfofp',
 			  title: 'Print',
-			  resizable: true,
+			  resizable: false,
 			  //resizeAxis: null,
 			  closable: false,
 			  dockable: false,
@@ -309,10 +317,11 @@
 				printinfofp.bringToTop();
 			});	
 			
-			var overviewMap = new OverviewMap({
+			overviewMap = new OverviewMap({
                 map: map,
                 attachTo: "bottom-right",
-                expandFactor: 3
+                expandFactor: 3,
+                visible: false
             }, dojo.byId("overviewDiv"));
             overviewMap.startup();
             //overviewMap.hide();
@@ -337,7 +346,14 @@
             domAttr.set("expandOV","style","visibility:visible");
             domAttr.set("collapseOV","style","visibility:hidden");
           });
-         
+         on (dom.byId("overview"),"click", function(e){
+             if(dojo.style("collapseOV", "visibility") == "visible"){
+                 collapseOV.click();
+             }else{
+                expandOV.click();
+
+             }  
+         });
          
          var srchToggler = new Toggler({
             node: "mapinfofp"
@@ -601,21 +617,31 @@
 </script> 
 </head> 
 <body class="claro">
+    <!--div id="header">
+		<center><br/>
+			<span class="soa">Arkansas Fire Districts</span>
+		</center>	
+		<div id="smallBar"></div>		
+	</div-->
     <div id="mapinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="printinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="mapDiv">
         <div id="HomeButton"></div>	
         <div class="MapInfo" role="presentation" id="MapInfo" style="display: block;">
             <div class="mapContainer" >
-                <div title="Search" class="mpinfo" id="mmpp"></div>
+                <div title="Search" class="mpinfo home" id="mmpp"></div>
             </div>
         </div>
         <div class="PrintInfo" role="presentation" id="PrintInfo" style="display: block;">
             <div class="mapContainer" >
-                <div title="Print" class="prninfo" id="print"></div>
+                <div title="Print" class="prninfo home" id="print"></div>
             </div>
         </div>
-        <!--div id="MpInfo" class="mapinfofp"></div-->
+        <div class="OverviewInfo" role="presentation" id="OverviewInfo" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Overview" class="overviewinfo home" id="overview"></div>
+            </div>
+        </div>
     </div>
     <div id="expandOV" style="visibility:visible;"><img border="1" src="img/expand-top-right.png" title="Expand Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999"/></div>
     <div id="collapseOV" style="visibility:hidden;"><img border="1" src="img/collapse-top-right.png" title="Collapse Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999;;"/></div>
