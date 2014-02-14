@@ -174,7 +174,7 @@
 		"dijit/form/Button", 
 		"esri/layers/ArcGISDynamicMapServiceLayer", 
 		"esri/layers/FeatureLayer",
-		"esri/toolbars/navigation",
+		//"esri/toolbars/navigation",
 		
 		"modules/HomeButton",
 		"dojox/layout/Dock",
@@ -200,7 +200,8 @@
 		"dojox/widget/DialogSimple",
 		"dojo/domReady!"
       ], function(
-        Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,
+        Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, 
+        //Navigation,
 		HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom,
 		djQuery, domAttr, RadioButton, Toggler, on, declare, Dialog
       ) {
@@ -213,9 +214,10 @@
 		
         map = new Map("mapDiv", { 
 		  logo:false,
-		  extent: initialExtent,//basemap: "national-geographic",
-          //center: [-96.541, 38.34],
-          zoom: 6
+		  extent: initialExtent,
+		  //basemap: "national-geographic",
+          //center: [-92.541, 34.70],
+          zoom: 8
         });
 		
         var ConstrainedFloatingPane = declare(FloatingPane, {
@@ -250,7 +252,7 @@
 			id: 'Ar_Fire_Distrcts',
 			outFields: ["*"],
 			infoTemplate: infoTemplate,
-			opacity: 0.8
+			opacity: 0.5
 		});        
 			
 		map.on("load", initOperationalLayer);
@@ -261,13 +263,13 @@
         function initOperationalLayer() {
 		    toggler.hide();
 		    
-			var navToolbar = new Navigation(map);
+			//var navToolbar = new Navigation(map);
 			
-			var zoomInDiv = djQuery(".esriSimpleSliderIncrementButton");
+			/*var zoomInDiv = djQuery(".esriSimpleSliderIncrementButton");
 			domAttr.set(zoomInDiv[0],"title","Zoom in");
 			  
 			var zoomOutDiv = djQuery(".esriSimpleSliderDecrementButton");
-			domAttr.set(zoomOutDiv[0],"title","Zoom out");
+			domAttr.set(zoomOutDiv[0],"title","Zoom out");*/
 			
 			//Create Find Task using Post code layer
 			findTask = new FindTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer");
