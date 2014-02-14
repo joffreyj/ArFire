@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/mapinfofp.css">
     <link rel="stylesheet" href="css/prninfo.css">
     <link rel="stylesheet" href="css/overview.css">
+    <link rel="stylesheet" href="css/info.css">
     <link rel="stylesheet" href="css/ArFire.css">
     <style>
         #HomeButton {
@@ -46,6 +47,27 @@
           position: absolute;
           top: 114px;
           left: 20px;
+          z-index: 50;
+        }
+        
+        #InfoInfo {
+          position: absolute;
+          top: 209px;
+          left: 20px;
+          z-index: 50;
+        }
+        
+        #IEA_Watermark {
+          position: absolute;
+          bottom: 40px;
+          left: 20px;
+          z-index: 50;
+        }
+        
+        #AFD_Watermark {
+          position: absolute;
+          bottom: 40px;
+          right: 20px;
           z-index: 50;
         }
         
@@ -175,11 +197,12 @@
 		"dojo/fx/Toggler",
 		"dojo/on",
 		"dojo/_base/declare",
+		"dojox/widget/DialogSimple",
 		"dojo/domReady!"
       ], function(
         Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,
 		HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom,
-		djQuery, domAttr, RadioButton, Toggler, on, declare
+		djQuery, domAttr, RadioButton, Toggler, on, declare, Dialog
       ) {
         parser.parse();
 			
@@ -380,6 +403,14 @@
                 printinfofp.show();
              }    
           });
+          
+          var dlg = new Dialog({ title:"About Arkansas Fire Districts", href:"info.html" });
+          dlg.startup();
+            
+            on(dom.byId("info"), "click", function(e){
+                dlg.show();
+                
+            });
           /*on(dom.byId("collapseOV"), "click", function(e){
             toggler.hide();
             domAttr.set("expandOV","style","visibility:visible");
@@ -617,12 +648,8 @@
 </script> 
 </head> 
 <body class="claro">
-    <!--div id="header">
-		<center><br/>
-			<span class="soa">Arkansas Fire Districts</span>
-		</center>	
-		<div id="smallBar"></div>		
-	</div-->
+    <div id="IEA_Watermark"><img src="img/IEA_LOGO_Watermark.png"/></div>
+    <div id="AFD_Watermark"><img src="img/AFD_Watermark.png"/></div>
     <div id="mapinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="printinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="mapDiv">
@@ -640,6 +667,11 @@
         <div class="OverviewInfo" role="presentation" id="OverviewInfo" style="display: block;">
             <div class="mapContainer" >
                 <div title="Overview" class="overviewinfo home" id="overview"></div>
+            </div>
+        </div>
+        <div class="InfoInfo" role="presentation" id="InfoInfo" style="display: block;">
+            <div class="mapContainer" >
+                <div title="About" class="infoinfo home" id="info"></div>
             </div>
         </div>
     </div>

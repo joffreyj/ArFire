@@ -70,7 +70,7 @@ function searchToggle(which){
 	<br>
 	<div id="distDiv" style="display:block">
 	<br/>
-	<input id="distSearch" dojoType="dijit.form.FilteringSelect" checked="checked" searchAttr="NAME" name="distSearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME', descending:false}]}" placeHolder="Select a fire dist from the list"/>
+	<input id="distSearch" dojoType="dijit.form.FilteringSelect" ignoreCase="true" checked="checked" searchAttr="NAME" name="distSearch" pageSize="20" fetchProperties="{sort:[{attribute:'NAME', descending:false}]}" placeHolder="Select a fire dist from the list"/>
 	&nbsp;&nbsp;<button type="button" id="searchDistButton" onclick="doDistFind();">Search</button><br/><br/>
 	</div>
 	<div id="countyDiv" style="display:none">
