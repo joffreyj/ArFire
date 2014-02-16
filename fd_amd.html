@@ -20,9 +20,53 @@
     <link rel="stylesheet" href="css/prninfo.css">
     <link rel="stylesheet" href="css/overview.css">
     <link rel="stylesheet" href="css/info.css">
+    <link rel="stylesheet" href="css/toolbar.css">
     <link rel="stylesheet" href="css/ArFire.css">
     <style>
+    
+        #ZoomIn {
+          position: absolute;
+          top: 18px;
+          left: 20px;
+          z-index: 50;
+        }
+        
+        #ZoomOut {
+          position: absolute;
+          top: 18px;
+          left: 52px;
+          z-index: 50;
+        }
+        
+        #Pan {
+          position: absolute;
+          top: 18px;
+          left: 84px;
+          z-index: 50;
+        }
+        
+        #Prev {
+          position: absolute;
+          top: 18px;
+          left: 116px;
+          z-index: 50;
+        }
+        
+        #Next {
+          position: absolute;
+          top: 18px;
+          left: 148px;
+          z-index: 50;
+        }
+        
         #HomeButton {
+          position: absolute;
+          top: 18px;
+          left: 180px;
+          z-index: 50;
+        }
+        
+        #OverviewInfo {
           position: absolute;
           top: 82px;
           left: 20px;
@@ -31,28 +75,21 @@
         
         #MapInfo {
           position: absolute;
-          top: 145px;
+          top: 114px;
           left: 20px;
           z-index: 50;
         }
         
         #PrintInfo {
           position: absolute;
-          top: 177px;
-          left: 20px;
-          z-index: 50;
-        }
-        
-        #OverviewInfo {
-          position: absolute;
-          top: 114px;
+          top: 146px;
           left: 20px;
           z-index: 50;
         }
         
         #InfoInfo {
           position: absolute;
-          top: 209px;
+          top: 178px;
           left: 20px;
           z-index: 50;
         }
@@ -129,14 +166,6 @@
         }
     </style>
 	<script type="text/javascript">
-		/*var dojoConfig = {
-			parseOnLoad: false,
-			async: true,
-			packages: [{
-				name: "floatpane",
-				"location": location.pathname.replace(/\/[^/]+$/, "")+'/floatpane' // may need to revise it based on your project file structure
-			}]
-		};*/
 		var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
 			var dojoConfig = {
 				// The locationPath logic below may look confusing but all its doing is 
@@ -160,6 +189,8 @@
 		var theStore;
 		var countyStore;
 		var overviewMap;
+		var navToolbar;
+		var zVar="";
       require([
         "esri/map", 
         "esri/dijit/OverviewMap",
@@ -174,7 +205,7 @@
 		"dijit/form/Button", 
 		"esri/layers/ArcGISDynamicMapServiceLayer", 
 		"esri/layers/FeatureLayer",
-		//"esri/toolbars/navigation",
+		"esri/toolbars/navigation",
 		
 		"modules/HomeButton",
 		"dojox/layout/Dock",
@@ -191,6 +222,8 @@
 		"esri/tasks/FindParameters",
 		"dojo/data/ItemFileReadStore",
 		"dojo/dom",
+		"dojo/dom-class",
+		"dojo/mouse",
 		"dojo/query",
 		"dojo/dom-attr",
 		"dijit/form/RadioButton",
@@ -200,10 +233,9 @@
 		"dojox/widget/DialogSimple",
 		"dojo/domReady!"
       ], function(
-        Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, ArcGISDynamicMapServiceLayer, FeatureLayer, 
-        //Navigation,
-		HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom,
-		djQuery, domAttr, RadioButton, Toggler, on, declare, Dialog
+        Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, 
+        ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,	HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, 
+        FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom, domClass, mouse, djQuery, domAttr, RadioButton, Toggler, on, declare, Dialog
       ) {
         parser.parse();
 			
@@ -215,6 +247,7 @@
         map = new Map("mapDiv", { 
 		  logo:false,
 		  extent: initialExtent,
+		  slider: false,
 		  //basemap: "national-geographic",
           //center: [-92.541, 34.70],
           zoom: 8
@@ -252,7 +285,7 @@
 			id: 'Ar_Fire_Distrcts',
 			outFields: ["*"],
 			infoTemplate: infoTemplate,
-			opacity: 0.5
+			opacity: 0.8
 		});        
 			
 		map.on("load", initOperationalLayer);
@@ -263,8 +296,9 @@
         function initOperationalLayer() {
 		    toggler.hide();
 		    
-			//var navToolbar = new Navigation(map);
-			
+			navToolbar = new Navigation(map);
+			dojo.connect(navToolbar, "onExtentHistoryChange", extentHistoryChangeHandler);
+            extentHistoryChangeHandler();
 			/*var zoomInDiv = djQuery(".esriSimpleSliderIncrementButton");
 			domAttr.set(zoomInDiv[0],"title","Zoom in");
 			  
@@ -349,8 +383,6 @@
                 visible: false
             }, dojo.byId("overviewDiv"));
             overviewMap.startup();
-            //overviewMap.hide();
-			//dojo.connect(searchDistButton,"onclick",setDistPrintTitle);	
         }
         var home = new HomeButton({
           map: map
@@ -359,60 +391,155 @@
         
         var toggler = new Toggler({
             node: "ovWin"
-          });
+        });
           
-          on(dom.byId("expandOV"), "click", function(e){
+        on(dom.byId("expandOV"), "click", function(e){
             toggler.show();
             domAttr.set("expandOV","style","visibility:hidden");
             domAttr.set("collapseOV","style","visibility:visible");
-          });
-          on(dom.byId("collapseOV"), "click", function(e){
+        });
+        
+        on(dom.byId("collapseOV"), "click", function(e){
             toggler.hide();
             domAttr.set("expandOV","style","visibility:visible");
             domAttr.set("collapseOV","style","visibility:hidden");
-          });
-         on (dom.byId("overview"),"click", function(e){
-             if(dojo.style("collapseOV", "visibility") == "visible"){
-                 collapseOV.click();
-             }else{
+        });
+        
+        on (dom.byId("overview"),"click", function(e){
+            if(dojo.style("collapseOV", "visibility") == "visible"){
+                domAttr.set("overview","style","background-color:#fff");
+                collapseOV.click();
+            }else{
+                domAttr.set("overview","style","background-color:#ccc");
                 expandOV.click();
-
-             }  
-         });
+            }  
+        });
          
-         var srchToggler = new Toggler({
+        var srchToggler = new Toggler({
             node: "mapinfofp"
-          });
+        });
           
-          on(dom.byId("mmpp"), "click", function(e){
-             if(dojo.style("mapinfofp", "visibility") == "visible"){
-                 mapinfofp.hide();
-                 domAttr.set("mmpp","style","background-color:fff");
-             }else{
+        on(dom.byId("mmpp"), "click", function(e){
+            if(dojo.style("mapinfofp", "visibility") == "visible"){
+                mapinfofp.hide();
+                domAttr.set("mmpp","style","background-color:#fff");
+            }else{
                 mapinfofp.show();
-             }    
-          });
+            }    
+        });
           
-          var printToggler = new Toggler({
+        var printToggler = new Toggler({
             node: "printinfofp"
-          });
+        });
           
-          on(dom.byId("print"), "click", function(e){
-             if(dojo.style("printinfofp", "visibility") == "visible"){
-                 printinfofp.hide();
-                 domAttr.set("print","style","background-color:fff");
-             }else{
+        on(dom.byId("print"), "click", function(e){
+            if(dojo.style("printinfofp", "visibility") == "visible"){
+                printinfofp.hide();
+                domAttr.set("print","style","background-color:#fff");
+            }else{
                 printinfofp.show();
-             }    
-          });
+            }    
+        });
           
-          var dlg = new Dialog({ title:"About Arkansas Fire Districts", href:"info.html" });
-          dlg.startup();
-            
-            on(dom.byId("info"), "click", function(e){
-                dlg.show();
-                
+        on(dom.byId("zmout"),"click", function(e){
+            disableTools();
+            if(zVar!="Zout"){
+                domClass.add("zmout","active");
+                //domAttr.set("zmout","style","background-color:#ccc");
+                navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
+                zVar="Zout";
+            }else{
+                zVar="";
+            }
+        });
+          
+        on(dom.byId("zmin"),"click", function(e){
+            disableTools();
+            if(zVar!="Zin"){
+                domClass.add("zmin","active");
+                //domClass.remove("zmin", "hover");
+                //domAttr.set("zmin","style","background-color:#ccc");
+                navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
+                zVar="Zin";
+            }else{
+                  zVar="";
+            }
+        });
+        
+        
+        var tools=["panbtn","zmin","zmout","prevbtn","nextbtn"];
+        dojo.forEach(tools, function(item, index){
+            on(dom.byId(item), mouse.enter, function(){
+                domClass.add(item, "hover");
             });
+            
+            on(dom.byId(item), mouse.leave, function(){
+                domClass.remove(item, "hover");
+            });
+        });  
+        
+        
+        on(dom.byId("panbtn"),"click", function(e){
+            disableTools();
+            if(zVar != "pan"){
+                domClass.add("panbtn","active");
+                //domAttr.set("panbtn","style","background-color:#ccc");
+                navToolbar.activate(esri.toolbars.Navigation.PAN);
+                zVar="pan";
+            }else{
+                  zVar="";
+            }
+        });
+
+        on(dom.byId("prevbtn"),"click", function(e){
+            disableTools();
+            navToolbar.zoomToPrevExtent();
+            zVar="";
+        });
+        
+        on(dom.byId("nextbtn"),"click", function(e){
+            disableTools();
+            navToolbar.zoomToNextExtent();
+            zVar="";
+        });
+
+        function disableTools(){
+            navToolbar.deactivate();
+            domClass.remove("zmin","active");
+            domClass.remove("zmout","active");
+            domClass.remove("panbtn","active");
+        }
+        function extentHistoryChangeHandler() {
+            if(navToolbar.isFirstExtent()){
+                domClass.add("prevbtn","prevbtn_disabled");
+                on(dom.byId("prevbtn"), mouse.enter, function(){
+                    domClass.remove("prevbtn", "hover");
+                });
+            }else{
+                domClass.remove("prevbtn","prevbtn_disabled");
+                on(dom.byId("prevbtn"), mouse.enter, function(){
+                    domClass.add("prevbtn", "hover");
+                });
+            }
+            if(navToolbar.isLastExtent()){
+                domClass.add("nextbtn","nextbtn_disabled");
+                on(dom.byId("nextbtn"), mouse.enter, function(){
+                    domClass.remove("nextbtn", "hover");
+                });
+            }else{
+                domClass.remove("nextbtn","nextbtn_disabled");
+                on(dom.byId("nextbtn"), mouse.enter, function(){
+                    domClass.add("nextbtn", "hover");
+                });            
+            }
+        }
+        var dlg = new Dialog({ title:"About Arkansas Fire Districts", href:"info.html" });
+        dlg.startup();
+            
+        on(dom.byId("info"), "click", function(e){
+            dlg.show();
+        });
+            
           /*on(dom.byId("collapseOV"), "click", function(e){
             toggler.hide();
             domAttr.set("expandOV","style","visibility:visible");
@@ -433,63 +560,63 @@
           });*/
           
 		function createPrintDijit(printTitle) {
-				var layoutTemplate, templateNames, mapOnlyIndex, templates;
-								
-				// create an array of objects that will be used to create print templates
-				var layouts = [
-				  { 
-					"name": "Letter ANSI A Landscape", 
-					"label": "Landscape (PDF)", 
-					"format": "pdf", 
-					"options": { 
-					  "legendLayers": [], // empty array means no legend
-					  "scalebarUnit": "Miles",
-					  "titleText": printTitle + ", Landscape PDF" 
-					}
-				  }, {
-					"name": "Letter ANSI A Portrait", 
-					"label": "Portrait (Image)", 
-					"format": "jpg", 
-					"options":  { 
-					  "legendLayers": [],
-					  "scaleBarUnit": "Miles",
-					  "titleText": printTitle + ", Portrait JPG"
-					}
-				  },{
-                    label: "Map Only (PNG)",
-                    format: "PNG32",
-                    layout: "MAP_ONLY",
-                    preserveScale: true,
-                    exportOptions: {
-                      width: 1024,
-                      height: 768,
-                      dpi: 96
-                    }
-                  }
-				];
-				
-				// create the print templates, could also use dojo.map
-				var templates = [];
-				dojo.forEach(layouts, function(lo) {
-				  var t = new esri.tasks.PrintTemplate();
-				  t.layout = lo.name;
-				  t.label = lo.label;
-				  t.format = lo.format;
-				  t.preserveScale = false;
-				  t.layoutOptions = lo.options;
-				  templates.push(t);
-				});
+			var layoutTemplate, templateNames, mapOnlyIndex, templates;
+							
+			// create an array of objects that will be used to create print templates
+			var layouts = [
+			  { 
+				"name": "Letter ANSI A Landscape", 
+				"label": "Landscape (PDF)", 
+				"format": "pdf", 
+				"options": { 
+				  "legendLayers": [], // empty array means no legend
+				  "scalebarUnit": "Miles",
+				  "titleText": printTitle + ", Landscape PDF" 
+				}
+			  }, {
+				"name": "Letter ANSI A Portrait", 
+				"label": "Portrait (Image)", 
+				"format": "jpg", 
+				"options":  { 
+				  "legendLayers": [],
+				  "scaleBarUnit": "Miles",
+				  "titleText": printTitle + ", Portrait JPG"
+				}
+			  },{
+                label: "Map Only (PNG)",
+                format: "PNG32",
+                layout: "MAP_ONLY",
+                preserveScale: true,
+                exportOptions: {
+                  width: 1024,
+                  height: 768,
+                  dpi: 96
+                }
+              }
+			];
+			
+			// create the print templates, could also use dojo.map
+			var templates = [];
+			dojo.forEach(layouts, function(lo) {
+			  var t = new esri.tasks.PrintTemplate();
+			  t.layout = lo.name;
+			  t.label = lo.label;
+			  t.format = lo.format;
+			  t.preserveScale = false;
+			  t.layoutOptions = lo.options;
+			  templates.push(t);
+			});
 
-				printer = new esri.dijit.Print({
-				  "map": map,
-				  "templates": templates,
-				  "asynch":	false,
-				  url: "http://argis.ualr.edu/ieagis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
-				}, dojo.byId("printButton"));
-				printer.startup();			
-				dojo.connect(printer, "onPrintStart", function(){
-					this.templates[0].layoutOptions.titleText = dojo.byId("map_name").value;
-				});
+			printer = new esri.dijit.Print({
+			  "map": map,
+			  "templates": templates,
+			  "asynch":	false,
+			  url: "http://argis.ualr.edu/ieagis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
+			}, dojo.byId("printButton"));
+			printer.startup();			
+			dojo.connect(printer, "onPrintStart", function(){
+				this.templates[0].layoutOptions.titleText = dojo.byId("map_name").value;
+			});
 								
 		}
 
@@ -565,7 +692,7 @@
 		}	
 		function qryResults(results){
 		
-		//Populate the dropdown list box with unique values
+		    //Populate the dropdown list box with unique values
 			values = [];
 			testVals = {};
 			
@@ -656,6 +783,31 @@
     <div id="printinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="mapDiv">
         <div id="HomeButton"></div>	
+        <div role="presentation" id="ZoomIn" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Zoom in" class="toolbarButton zoominbtn home" id="zmin"></div>
+            </div>
+        </div>
+        <div role="presentation" id="ZoomOut" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Zoom Out" class="toolbarButton zoomoutbtn home" id="zmout"></div>
+            </div>
+        </div>
+        <div role="presentation" id="Pan" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Pan" class="toolbarButton panbtn home" id="panbtn"></div>
+            </div>
+        </div>
+        <div role="presentation" id="Prev" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Previous extent" class="toolbarButton prevbtn" id="prevbtn"></div>
+            </div>
+        </div>
+        <div role="presentation" id="Next" style="display: block;">
+            <div class="mapContainer" >
+                <div title="Next extent" class="toolbarButton nextbtn" id="nextbtn"></div>
+            </div>
+        </div>
         <div class="MapInfo" role="presentation" id="MapInfo" style="display: block;">
             <div class="mapContainer" >
                 <div title="Search" class="mpinfo home" id="mmpp"></div>

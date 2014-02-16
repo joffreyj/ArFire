@@ -1,0 +1,66 @@
+.toolbarButton span {
+    display:none;
+}
+.toolbarButton{
+	padding:0px;
+	width:30px;
+	height:30px;
+	background-color: #666;
+	background-color: #FFF;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	cursor:pointer;
+	-webkit-border-radius:5px;
+	-moz-border-radius:5px;
+	-o-border-radius:5px;
+	border-radius:0;
+	border:2px solid #666;	
+	background-position:center center;
+	background-repeat:no-repeat;
+}
+
+.hover {
+	background-color: #eee;
+	/*background-color: rgba(102,102,102,0.90);*/
+}
+
+.active {
+	background-color: #ccc;
+	/*background-color: rgba(102,102,102,0.60);*/
+}
+
+.loading {
+	background-image:url(home/images/home-spinner.gif);
+}
+
+.zoomoutbtn {
+	background-image:url(../img/zoom_out.png);
+}
+
+.zoominbtn {
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	background-image:url(../img/zoom_in.png);
+}
+
+.panbtn {
+	background-image:url(../img/pan.png);
+}
+
+.prevbtn {
+	background-image:url(../img/prevarrow.png);
+}
+
+.nextbtn {
+	background-image:url(../img/nextarrow.png);
+}
+
+.nextbtn_disabled {
+	background-image:url(../img/nextarrow_disabled.png);
+}
+
+.prevbtn_disabled {
+	background-image:url(../img/prevarrow_disabled.png);
+}

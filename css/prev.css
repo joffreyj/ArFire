@@ -1,8 +1,8 @@
-.HomeButton span {
+.Prev span {
 display:none;
 }
 
-.HomeButton .home {
+.Prev .prevbtn {
 	padding:0px;
 	width:30px;
 	height:30px;
@@ -17,26 +17,26 @@ display:none;
 	-moz-border-radius:5px;
 	-o-border-radius:5px;
 	border-radius:0px;
-	/*border-top-left-radius: 5px;*/
+	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
-	/*border-bottom-left-radius: 5px;*/
+	/*border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;*/
 	border:2px solid #666;	
-	background-image:url(../images/home_bk.png);
+	background-image:url(../img/left-arrow.jpg);
 	background-position:center center;
 	background-repeat:no-repeat;
 }
 
-.HomeButton .home:hover {
+.Prev .home:hover {
 	background-color: #eee;
 	/*background-color: rgba(102,102,102,0.90);*/
 }
 
-.HomeButton .home:active {
+.Prev .home:active {
 	background-color: #ccc;
 	background-color: rgba(102,102,102,0.60);
 }
 
-.HomeButton .loading {
-	background-image:url(../images/home-spinner.gif);
+.Prev .loading {
+	background-image:url(home/images/home-spinner.gif);
 }
