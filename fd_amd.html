@@ -15,15 +15,9 @@
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/FloatingPane.css";
 		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/ResizeHandle.css";
 	</style>
-    <link rel="stylesheet" href="home/css/HomeButton.css">
-    <link rel="stylesheet" href="css/mapinfofp.css">
-    <link rel="stylesheet" href="css/prninfo.css">
-    <link rel="stylesheet" href="css/overview.css">
-    <link rel="stylesheet" href="css/info.css">
-    <link rel="stylesheet" href="css/toolbar.css">
     <link rel="stylesheet" href="css/ArFire.css">
+    <link rel="stylesheet" href="css/toolbar.css">
     <style>
-    
         #ZoomIn {
           position: absolute;
           top: 18px;
@@ -59,7 +53,7 @@
           z-index: 50;
         }
         
-        #HomeButton {
+        #Home {
           position: absolute;
           top: 18px;
           left: 180px;
@@ -207,7 +201,7 @@
 		"esri/layers/FeatureLayer",
 		"esri/toolbars/navigation",
 		
-		"modules/HomeButton",
+		//"modules/HomeButton",
 		"dojox/layout/Dock",
 		"dojox/layout/ResizeHandle",
 		"dijit/layout/AccordionContainer",
@@ -234,7 +228,9 @@
 		"dojo/domReady!"
       ], function(
         Map, OverviewMap, InitialExtent, IdentifyTask, IdentifyParameters, SpatialReference, InfoTemplate, Popup, SimpleFillSymbol, SimpleLineSymbol, Button, 
-        ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,	HomeButton, Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, 
+        ArcGISDynamicMapServiceLayer, FeatureLayer, Navigation,	
+        //HomeButton, 
+        Dock, ResizeHandle, AccordionContainer, ContentPane, FilteringSelect, parser, 
         FloatingPane, Print, QueryTask, query, FindTask, FindParameters, ItemFileReadStore, dom, domClass, mouse, djQuery, domAttr, RadioButton, Toggler, on, declare, Dialog
       ) {
         parser.parse();
@@ -252,32 +248,6 @@
           //center: [-92.541, 34.70],
           zoom: 8
         });
-		
-        var ConstrainedFloatingPane = declare(FloatingPane, {
-            
-            postCreate: function() {
-                this.inherited(arguments);
-                this.moveable = new dojo.dnd.move.constrainedMoveable(
-                    this.domNode, {
-                        handle: this.focusNode,
-                        constraints: function() {
-                            var coordsBody = dojo.coords(dojo.body());
-                            // or
-                            var coordsWindow = {
-                                l: 0,
-                                t: 0,
-                                w: window.innerWidth,
-                                h: window.innerHeight                            
-                            };
-                            
-                            return coordsWindow;
-                        },
-                        within: true
-                    }
-                );                            
-            }
-            
-        });		
         
 		var infoTemplate = new InfoTemplate("${NAME10}", "County:  ${NAME10}");
 		
@@ -291,7 +261,7 @@
 		map.on("load", initOperationalLayer);
 		map.addLayer(Ar_Fire_Distrcts);
 		map.on("click", executeIdentifyTask);
-		s1=dojo.byId('srchTool');
+		//s1=dojo.byId('srchTool');
 		
         function initOperationalLayer() {
 		    toggler.hide();
@@ -317,13 +287,11 @@
 			  id: 'mapinfofp',
 			  title: 'Search',
 			  resizable: false,
-			  //resizeAxis: null,
 			  closable: false,
 			  dockable: false,
 			  dockTo: dojox.layout.dock,
 			  style: 'position:absolute;bottom:250px;left:20px;width:370px;height:135px;visibility:hidden;overflow:hidden;',
 			  href: 'accord.html',
-			  //content: dom.byId('mapinfofpp'),
 			  preload: true
 			},dojo.byId("mapinfofp"));
 
@@ -346,23 +314,20 @@
 			});		
 
 			mapinfofp.on('show', function () {
-			        domAttr.set("mmpp","style","background-color:#ccc");
+			        //domAttr.set("mapinfobtn","style","background-color:#ccc");
 				    mapinfofp.bringToTop();
 			});
 
-			
 			//floating window for print
 			printinfofp = new FloatingPane({
 			  id: 'printinfofp',
 			  title: 'Print',
 			  resizable: false,
-			  //resizeAxis: null,
 			  closable: false,
 			  dockable: false,
 			  dockTo: dojox.layout.dock,
 			  style: 'position:absolute;bottom:60px;left:20px;width:370px;height:200px;visibility:hidden;overflow:hidden;',
 			  href: 'printer.html',
-			  //content: dom.byId('mapinfofpp'),
 			  preload: true
 			},dojo.byId("printinfofp"));
 
@@ -384,10 +349,6 @@
             }, dojo.byId("overviewDiv"));
             overviewMap.startup();
         }
-        var home = new HomeButton({
-          map: map
-        }, "HomeButton");
-        home.startup();
         
         var toggler = new Toggler({
             node: "ovWin"
@@ -397,20 +358,22 @@
             toggler.show();
             domAttr.set("expandOV","style","visibility:hidden");
             domAttr.set("collapseOV","style","visibility:visible");
+            domClass.add("overviewbtn","active");
         });
         
         on(dom.byId("collapseOV"), "click", function(e){
             toggler.hide();
             domAttr.set("expandOV","style","visibility:visible");
             domAttr.set("collapseOV","style","visibility:hidden");
+            domClass.remove("overviewbtn","active");
         });
         
-        on (dom.byId("overview"),"click", function(e){
+        on (dom.byId("overviewbtn"),"click", function(e){
             if(dojo.style("collapseOV", "visibility") == "visible"){
-                domAttr.set("overview","style","background-color:#fff");
+                domClass.remove("overviewbtn","active");
                 collapseOV.click();
             }else{
-                domAttr.set("overview","style","background-color:#ccc");
+                domClass.add("overviewbtn","active");
                 expandOV.click();
             }  
         });
@@ -419,11 +382,12 @@
             node: "mapinfofp"
         });
           
-        on(dom.byId("mmpp"), "click", function(e){
+        on(dom.byId("mapinfobtn"), "click", function(e){
             if(dojo.style("mapinfofp", "visibility") == "visible"){
+                domClass.remove("mapinfobtn","active");
                 mapinfofp.hide();
-                domAttr.set("mmpp","style","background-color:#fff");
             }else{
+                domClass.add("mapinfobtn","active");
                 mapinfofp.show();
             }    
         });
@@ -432,11 +396,13 @@
             node: "printinfofp"
         });
           
-        on(dom.byId("print"), "click", function(e){
+        on(dom.byId("printbtn"), "click", function(e){
             if(dojo.style("printinfofp", "visibility") == "visible"){
+                domClass.remove("printbtn","active");
                 printinfofp.hide();
-                domAttr.set("print","style","background-color:#fff");
+                //domAttr.set("print","style","background-color:#fff");
             }else{
+                domClass.add("printbtn","active");
                 printinfofp.show();
             }    
         });
@@ -445,7 +411,6 @@
             disableTools();
             if(zVar!="Zout"){
                 domClass.add("zmout","active");
-                //domAttr.set("zmout","style","background-color:#ccc");
                 navToolbar.activate(esri.toolbars.Navigation.ZOOM_OUT);
                 zVar="Zout";
             }else{
@@ -457,8 +422,6 @@
             disableTools();
             if(zVar!="Zin"){
                 domClass.add("zmin","active");
-                //domClass.remove("zmin", "hover");
-                //domAttr.set("zmin","style","background-color:#ccc");
                 navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
                 zVar="Zin";
             }else{
@@ -466,8 +429,19 @@
             }
         });
         
+         on(dom.byId("homebtn"),"click", function(e){
+            disableTools();
+            if(zVar!="Home"){
+                map.graphics.clear();
+				map.infoWindow.hide();
+                map.setExtent(initialExtent);
+                zVar="Home";
+            }else{
+                  zVar="";
+            }
+        });
         
-        var tools=["panbtn","zmin","zmout","prevbtn","nextbtn"];
+        var tools=["homebtn","panbtn","zmin","zmout","prevbtn","nextbtn","infobtn","mapinfobtn","printbtn","overviewbtn"];
         dojo.forEach(tools, function(item, index){
             on(dom.byId(item), mouse.enter, function(){
                 domClass.add(item, "hover");
@@ -477,13 +451,11 @@
                 domClass.remove(item, "hover");
             });
         });  
-        
-        
+
         on(dom.byId("panbtn"),"click", function(e){
             disableTools();
             if(zVar != "pan"){
                 domClass.add("panbtn","active");
-                //domAttr.set("panbtn","style","background-color:#ccc");
                 navToolbar.activate(esri.toolbars.Navigation.PAN);
                 zVar="pan";
             }else{
@@ -505,9 +477,9 @@
 
         function disableTools(){
             navToolbar.deactivate();
-            domClass.remove("zmin","active");
-            domClass.remove("zmout","active");
-            domClass.remove("panbtn","active");
+            dojo.forEach(tools, function(item, index){
+                domClass.remove(item,"active");
+            });
         }
         function extentHistoryChangeHandler() {
             if(navToolbar.isFirstExtent()){
@@ -536,28 +508,9 @@
         var dlg = new Dialog({ title:"About Arkansas Fire Districts", href:"info.html" });
         dlg.startup();
             
-        on(dom.byId("info"), "click", function(e){
+        on(dom.byId("infobtn"), "click", function(e){
             dlg.show();
         });
-            
-          /*on(dom.byId("collapseOV"), "click", function(e){
-            toggler.hide();
-            domAttr.set("expandOV","style","visibility:visible");
-            domAttr.set("collapseOV","style","visibility:hidden");
-          });*/
-         
-        //create the radio buttons to toggle between the school district search and the city search
-         /* var radpar = new RadioButton({
-              checked: true,
-              value: "distDiv",
-              name: "searchParam",
-              onChange: function (b) { if (b) searchToggle(this.value); }
-          }, "radpar");*/
-		
-	    //tie the onChange events of the radio buttons to toggle between the school district and city
-         /* dijit.byId('radpar').on('change', function () {
-              var value = this.value;
-          });*/
           
 		function createPrintDijit(printTitle) {
 			var layoutTemplate, templateNames, mapOnlyIndex, templates;
@@ -671,7 +624,6 @@
 			  });
 			});
 
-
 			// InfoWindow expects an array of features from each deferred
 			// object that you pass. If the response from the task execution 
 			// above is not an array of features, then you need to add a callback
@@ -782,20 +734,19 @@
     <div id="mapinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="printinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
     <div id="mapDiv">
-        <div id="HomeButton"></div>	
         <div role="presentation" id="ZoomIn" style="display: block;">
             <div class="mapContainer" >
-                <div title="Zoom in" class="toolbarButton zoominbtn home" id="zmin"></div>
+                <div title="Zoom in" class="toolbarButton zoominbtn" id="zmin"></div>
             </div>
         </div>
         <div role="presentation" id="ZoomOut" style="display: block;">
             <div class="mapContainer" >
-                <div title="Zoom Out" class="toolbarButton zoomoutbtn home" id="zmout"></div>
+                <div title="Zoom Out" class="toolbarButton zoomoutbtn" id="zmout"></div>
             </div>
         </div>
         <div role="presentation" id="Pan" style="display: block;">
             <div class="mapContainer" >
-                <div title="Pan" class="toolbarButton panbtn home" id="panbtn"></div>
+                <div title="Pan" class="toolbarButton panbtn" id="panbtn"></div>
             </div>
         </div>
         <div role="presentation" id="Prev" style="display: block;">
@@ -808,24 +759,29 @@
                 <div title="Next extent" class="toolbarButton nextbtn" id="nextbtn"></div>
             </div>
         </div>
-        <div class="MapInfo" role="presentation" id="MapInfo" style="display: block;">
+        <div role="presentation" id="Home" style="display: block;">
             <div class="mapContainer" >
-                <div title="Search" class="mpinfo home" id="mmpp"></div>
+                <div title="Default Extent" class="toolbarButton homebtn" id="homebtn"></div>
             </div>
         </div>
-        <div class="PrintInfo" role="presentation" id="PrintInfo" style="display: block;">
+        <div role="presentation" id="MapInfo" style="display: block;">
             <div class="mapContainer" >
-                <div title="Print" class="prninfo home" id="print"></div>
+                <div title="Search" class="toolbarButton mapinfobtn" id="mapinfobtn"></div>
             </div>
         </div>
-        <div class="OverviewInfo" role="presentation" id="OverviewInfo" style="display: block;">
+        <div role="presentation" id="PrintInfo" style="display: block;">
             <div class="mapContainer" >
-                <div title="Overview" class="overviewinfo home" id="overview"></div>
+                <div title="Print" class="toolbarButton printbtn" id="printbtn"></div>
             </div>
         </div>
-        <div class="InfoInfo" role="presentation" id="InfoInfo" style="display: block;">
+        <div role="presentation" id="OverviewInfo" style="display: block;">
             <div class="mapContainer" >
-                <div title="About" class="infoinfo home" id="info"></div>
+                <div title="Overview" class="toolbarButton overviewbtn" id="overviewbtn"></div>
+            </div>
+        </div>
+        <div role="presentation" id="InfoInfo" style="display: block;">
+            <div class="mapContainer" >
+                <div title="About" class="toolbarButton infobtn" id="infobtn"></div>
             </div>
         </div>
     </div>

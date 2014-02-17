@@ -23,12 +23,10 @@
 
 .hover {
 	background-color: #eee;
-	/*background-color: rgba(102,102,102,0.90);*/
 }
 
 .active {
 	background-color: #ccc;
-	/*background-color: rgba(102,102,102,0.60);*/
 }
 
 .loading {
@@ -63,4 +61,30 @@
 
 .prevbtn_disabled {
 	background-image:url(../img/prevarrow_disabled.png);
+}
+
+.homebtn {
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	background-image:url(../img/home_bk.png);
+}
+
+.mapinfobtn {
+	background-image:url(../img/binoculars.png);
+}
+
+.infobtn {
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	background-image:url(../img/Info-icon.png);
+}
+
+.printbtn {
+	background-image:url(../img/Printer-128.png);
+}
+
+.overviewbtn {
+	border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
+	background-image:url(../img/glossy_arkansas.png);
 }
