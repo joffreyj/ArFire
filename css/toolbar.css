@@ -38,8 +38,6 @@
 }
 
 .zoominbtn {
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
 	background-image:url(../img/zoom_in.png);
 }
 
@@ -64,12 +62,12 @@
 }
 
 .homebtn {
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
 	background-image:url(../img/home_bk.png);
 }
 
 .mapinfobtn {
+    border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
 	background-image:url(../img/binoculars.png);
 }
 
@@ -84,7 +82,75 @@
 }
 
 .overviewbtn {
-	border-top-right-radius: 5px;
-	border-top-left-radius: 5px;
 	background-image:url(../img/glossy_arkansas.png);
+}
+
+#MapInfo {
+  position: absolute;
+  top: 55px;
+  left: 20px;
+  z-index: 50;
+}
+
+#PrintInfo {
+  position: absolute;
+  top: 86px;
+  left: 20px;
+  z-index: 50;
+}
+
+#OverviewInfo{
+  position: absolute;
+  top: 118px;
+  left: 20px;
+  z-index: 50;
+}
+
+#ZoomIn {
+  position: absolute;
+  top: 150px;
+  left: 20px;
+  z-index: 50;
+}
+
+#ZoomOut {
+  position: absolute;
+  top: 182px;
+  left: 20px;
+  z-index: 50;
+}
+
+#Prev {
+  position: absolute;
+  top: 214px;
+  left: 20px;
+  z-index: 50;
+}
+
+#Next {
+  position: absolute;
+  top: 245px;
+  left: 20px;
+  z-index: 50;
+}
+
+#Home {
+  position: absolute;
+  top: 277px;
+  left: 20px;
+  z-index: 50;
+}
+
+#Pan  {
+  position: absolute;
+  top: 309px;
+  left: 20px;
+  z-index: 50;
+}
+
+#InfoInfo {
+  position: absolute;
+  top: 341px;
+  left: 20px;
+  z-index: 50;
 }

@@ -18,76 +18,6 @@
     <link rel="stylesheet" href="css/ArFire.css">
     <link rel="stylesheet" href="css/toolbar.css">
     <style>
-        #ZoomIn {
-          position: absolute;
-          top: 18px;
-          left: 20px;
-          z-index: 50;
-        }
-        
-        #ZoomOut {
-          position: absolute;
-          top: 18px;
-          left: 52px;
-          z-index: 50;
-        }
-        
-        #Pan {
-          position: absolute;
-          top: 18px;
-          left: 84px;
-          z-index: 50;
-        }
-        
-        #Prev {
-          position: absolute;
-          top: 18px;
-          left: 116px;
-          z-index: 50;
-        }
-        
-        #Next {
-          position: absolute;
-          top: 18px;
-          left: 148px;
-          z-index: 50;
-        }
-        
-        #Home {
-          position: absolute;
-          top: 18px;
-          left: 180px;
-          z-index: 50;
-        }
-        
-        #OverviewInfo {
-          position: absolute;
-          top: 82px;
-          left: 20px;
-          z-index: 50;
-        }
-        
-        #MapInfo {
-          position: absolute;
-          top: 114px;
-          left: 20px;
-          z-index: 50;
-        }
-        
-        #PrintInfo {
-          position: absolute;
-          top: 146px;
-          left: 20px;
-          z-index: 50;
-        }
-        
-        #InfoInfo {
-          position: absolute;
-          top: 178px;
-          left: 20px;
-          z-index: 50;
-        }
-        
         #IEA_Watermark {
           position: absolute;
           bottom: 40px;
@@ -290,7 +220,7 @@
 			  closable: false,
 			  dockable: false,
 			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;bottom:250px;left:20px;width:370px;height:135px;visibility:hidden;overflow:hidden;',
+			  style: 'position:absolute;top:55px;left:60px;width:320px;height:135px;visibility:hidden;overflow:hidden;',
 			  href: 'accord.html',
 			  preload: true
 			},dojo.byId("mapinfofp"));
@@ -314,8 +244,7 @@
 			});		
 
 			mapinfofp.on('show', function () {
-			        //domAttr.set("mapinfobtn","style","background-color:#ccc");
-				    mapinfofp.bringToTop();
+				mapinfofp.bringToTop();
 			});
 
 			//floating window for print
@@ -326,7 +255,7 @@
 			  closable: false,
 			  dockable: false,
 			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;bottom:60px;left:20px;width:370px;height:200px;visibility:hidden;overflow:hidden;',
+			  style: 'position:absolute;top:86px;left:60px;width:320px;height:200px;visibility:hidden;overflow:hidden;',
 			  href: 'printer.html',
 			  preload: true
 			},dojo.byId("printinfofp"));
@@ -400,7 +329,6 @@
             if(dojo.style("printinfofp", "visibility") == "visible"){
                 domClass.remove("printbtn","active");
                 printinfofp.hide();
-                //domAttr.set("print","style","background-color:#fff");
             }else{
                 domClass.add("printbtn","active");
                 printinfofp.show();
@@ -418,10 +346,10 @@
             }
         });
           
-        on(dom.byId("zmin"),"click", function(e){
+        on(dom.byId("zminbtn"),"click", function(e){
             disableTools();
             if(zVar!="Zin"){
-                domClass.add("zmin","active");
+                domClass.add("zminbtn","active");
                 navToolbar.activate(esri.toolbars.Navigation.ZOOM_IN);
                 zVar="Zin";
             }else{
@@ -441,7 +369,7 @@
             }
         });
         
-        var tools=["homebtn","panbtn","zmin","zmout","prevbtn","nextbtn","infobtn","mapinfobtn","printbtn","overviewbtn"];
+        var tools=["homebtn","panbtn","zminbtn","zmout","prevbtn","nextbtn","infobtn","mapinfobtn","printbtn","overviewbtn"];
         dojo.forEach(tools, function(item, index){
             on(dom.byId(item), mouse.enter, function(){
                 domClass.add(item, "hover");
@@ -736,7 +664,7 @@
     <div id="mapDiv">
         <div role="presentation" id="ZoomIn" style="display: block;">
             <div class="mapContainer" >
-                <div title="Zoom in" class="toolbarButton zoominbtn" id="zmin"></div>
+                <div title="Zoom in" class="toolbarButton zoominbtn" id="zminbtn"></div>
             </div>
         </div>
         <div role="presentation" id="ZoomOut" style="display: block;">
