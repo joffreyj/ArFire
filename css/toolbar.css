@@ -1,3 +1,8 @@
+.toolbar {
+	z-index: 50;
+	position: absolute;
+	list-style: none;
+}
 .toolbarButton span {
     display:none;
 }
@@ -16,7 +21,7 @@
 	-moz-border-radius:5px;
 	-o-border-radius:5px;
 	border-radius:0;
-	border:2px solid #666;	
+	border:1px solid #666;	
 	background-position:center center;
 	background-repeat:no-repeat;
 }
@@ -42,6 +47,8 @@
 }
 
 .panbtn {
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
 	background-image:url(../img/pan.png);
 }
 
@@ -83,74 +90,4 @@
 
 .overviewbtn {
 	background-image:url(../img/glossy_arkansas.png);
-}
-
-#MapInfo {
-  position: absolute;
-  top: 55px;
-  left: 20px;
-  z-index: 50;
-}
-
-#PrintInfo {
-  position: absolute;
-  top: 86px;
-  left: 20px;
-  z-index: 50;
-}
-
-#OverviewInfo{
-  position: absolute;
-  top: 118px;
-  left: 20px;
-  z-index: 50;
-}
-
-#ZoomIn {
-  position: absolute;
-  top: 150px;
-  left: 20px;
-  z-index: 50;
-}
-
-#ZoomOut {
-  position: absolute;
-  top: 182px;
-  left: 20px;
-  z-index: 50;
-}
-
-#Prev {
-  position: absolute;
-  top: 214px;
-  left: 20px;
-  z-index: 50;
-}
-
-#Next {
-  position: absolute;
-  top: 245px;
-  left: 20px;
-  z-index: 50;
-}
-
-#Home {
-  position: absolute;
-  top: 277px;
-  left: 20px;
-  z-index: 50;
-}
-
-#Pan  {
-  position: absolute;
-  top: 309px;
-  left: 20px;
-  z-index: 50;
-}
-
-#InfoInfo {
-  position: absolute;
-  top: 341px;
-  left: 20px;
-  z-index: 50;
 }

@@ -1,110 +1,3 @@
-<!DOCTYPE html>
-<html> 
-  <head> 
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
-    <!--The viewport meta tag is used to improve the presentation and behavior of the samples 
-      on iOS devices-->
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
-    <title>AR Fire Districts</title> 
-
-    <!--link rel="stylesheet" href="http://js.arcgis.com/3.8/js/dojo/dijit/themes/claro/claro.css"--> 
-    
-	<style type="text/css">
-		@import  "http://js.arcgis.com/3.4/js/dojo/dijit/themes/claro/claro.css";
-		@import "http://js.arcgis.com/3.7/js/esri/css/esri.css";
-		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/FloatingPane.css";
-		@import "http://js.arcgis.com/3.4/js/dojo/dojox/layout/resources/ResizeHandle.css";
-	</style>
-    <link rel="stylesheet" href="css/ArFire.css">
-    <link rel="stylesheet" href="css/toolbar.css">
-    <style>
-        #IEA_Watermark {
-          position: absolute;
-          bottom: 40px;
-          left: 20px;
-          z-index: 50;
-        }
-        
-        #AFD_Watermark {
-          position: absolute;
-          bottom: 40px;
-          right: 20px;
-          z-index: 50;
-        }
-        
-		/*html, body, #mapDiv {
-			padding:0;
-			margin:0;
-			height:93%;
-			width:100%;
-		}*/
-	  
-		/* floating pane */
-		.dojoxFloatingPaneWrapper {
-			padding:8px;
-		}
-		.dojoxFloatingPane {
-			padding:0 !important;
-			border:solid 1px #eee !important;
-		}
-		.dojoxFloatingPaneTitle {
-			border: 1px solid #ffffff;
-			border-top: none;
-			background-color: #eee;
-			background-image: url("http://ajax.googleapis.com/ajax/libs/dojo/1.9.1/dijit/themes/claro/images/standardGradient.png");
-			background-repeat: repeat-x;
-			background-image: -moz-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-			background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-			background-image: -o-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-			background-image: linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-			_background-image: none;
-			padding: 5px 7px 4px 7px;
-		}
-		.dojoxFloatingPaneContent {
-			border-top:solid 1px #769DC0;
-			padding:0;
-			overflow:hidden
-		}
-		.dojoxFloatingMinimizeIcon {
-			/*custom minimize icon if desired*/
-		}
-		.shadow {
-            -moz-border-radius:6px;
-            -webkit-border-radius:6px;
-             border-radius:6px;
-            -moz-box-shadow:0 6px 3px -3px #888;
-            -webkit-box-shadow:0 6px 3px -3px #888;
-            box-shadow:0 6px 3px -3px #888;
-            background-color:#FFF;
-            border:solid 4px #eee;
-            padding:8px;
-        }
-        .dojoxDock {
-            display: block;
-            border: 4px solid black;
-            position: absolute;
-            padding: 0;
-            margin: 0;
-            background: darkgray;
-            width:80%;
-        }
-    </style>
-	<script type="text/javascript">
-		var package_path = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-			var dojoConfig = {
-				// The locationPath logic below may look confusing but all its doing is 
-				// enabling us to load the api from a CDN and load local modules from the correct location.
-				packages: [{
-					name: "modules",
-					location: package_path + '/home/js'
-				}, {
-					name: "zesri",
-					location: package_path + '/home/js'
-				}]
-		};
-	</script>
-    <script src="http://js.arcgis.com/3.6/"></script> 
-    <script> 
 		var map;
 		var initialExtent;
 		var floatPane;
@@ -171,12 +64,12 @@
         }));
 		
         map = new Map("mapDiv", { 
-		  logo:false,
-		  extent: initialExtent,
-		  slider: false,
-		  //basemap: "national-geographic",
-          //center: [-92.541, 34.70],
-          zoom: 8
+            logo:false,
+            extent: initialExtent,
+            slider: false,
+            //basemap: "national-geographic",
+            //center: [-92.541, 34.70],
+            zoom: 8
         });
         
 		var infoTemplate = new InfoTemplate("${NAME10}", "County:  ${NAME10}");
@@ -194,14 +87,13 @@
 		//s1=dojo.byId('srchTool');
 		
         function initOperationalLayer() {
-		    toggler.hide();
-		    
+            toggler.hide();
+            
 			navToolbar = new Navigation(map);
 			dojo.connect(navToolbar, "onExtentHistoryChange", extentHistoryChangeHandler);
             extentHistoryChangeHandler();
 			/*var zoomInDiv = djQuery(".esriSimpleSliderIncrementButton");
 			domAttr.set(zoomInDiv[0],"title","Zoom in");
-			  
 			var zoomOutDiv = djQuery(".esriSimpleSliderDecrementButton");
 			domAttr.set(zoomOutDiv[0],"title","Zoom out");*/
 			
@@ -214,28 +106,28 @@
 			
 			//floating window for map search
 			mapinfofp = new FloatingPane({
-			  id: 'mapinfofp',
-			  title: 'Search',
-			  resizable: false,
-			  closable: false,
-			  dockable: false,
-			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;top:90px;left:80px;width:320px;height:135px;visibility:hidden;overflow:hidden;',
-			  href: 'accord.html',
-			  preload: true
+                id: 'mapinfofp',
+                title: 'Search',
+                resizable: false,
+                closable: false,
+                dockable: false,
+                dockTo: dojox.layout.dock,
+                style: 'position:absolute;top:90px;left:80px;width:320px;height:135px;visibility:hidden;overflow:hidden;',
+                href: 'accord.html',
+                preload: true
 			},dojo.byId("mapinfofp"));
 
 			
 			mapinfofp.on('load', function(){			
-			    queryDistTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer/1");
-    			//build query filter
-    			queryDist = new query();
-    			queryDist.returnGeometry = false;
-    			queryDist.outFields = ["OBJECTID_1","NAME"];
-    			runDistQuery();
-    			
-    			queryTask = new esri.tasks.QueryTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer/2");
-    			//build query filter
+                queryDistTask = new QueryTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer/1");
+                //build query filter
+                queryDist = new query();
+                queryDist.returnGeometry = false;
+                queryDist.outFields = ["OBJECTID_1","NAME"];
+                runDistQuery();
+                
+                queryTask = new esri.tasks.QueryTask("http://argis.ualr.edu/ieagis/rest/services/Ar_Fire_Distrcts/MapServer/2");
+                //build query filter
 				query = new query();
 				query.returnGeometry = false;
 				query.outFields = ["OBJECTID","NAME10"];					
@@ -249,20 +141,20 @@
 
 			//floating window for print
 			printinfofp = new FloatingPane({
-			  id: 'printinfofp',
-			  title: 'Print',
-			  resizable: false,
-			  closable: false,
-			  dockable: false,
-			  dockTo: dojox.layout.dock,
-			  style: 'position:absolute;top:226px;left:80px;width:320px;height:200px;visibility:hidden;overflow:hidden;',
-			  href: 'printer.html',
-			  preload: true
+                id: 'printinfofp',
+                title: 'Print',
+                resizable: false,
+                closable: false,
+                dockable: false,
+                dockTo: dojox.layout.dock,
+                style: 'position:absolute;top:226px;left:80px;width:320px;height:200px;visibility:hidden;overflow:hidden;',
+                href: 'printer.html',
+                preload: true
 			},dojo.byId("printinfofp"));
 
 			printinfofp.on('show', function () {
-			        domAttr.set("print","style","background-color:#ccc");
-				    printinfofp.bringToTop();
+                domAttr.set("print","style","background-color:#ccc");
+                printinfofp.bringToTop();
 			});
 			
 			printinfofp.on('load', function(){			
@@ -358,7 +250,7 @@
         });
         
          on(dom.byId("homebtn"),"click", function(e){
-            //disableTools();
+            disableTools();
             if(zVar!="Home"){
                 map.graphics.clear();
 				map.infoWindow.hide();
@@ -445,25 +337,25 @@
 							
 			// create an array of objects that will be used to create print templates
 			var layouts = [
-			  { 
+            { 
 				"name": "Letter ANSI A Landscape", 
 				"label": "Landscape (PDF)", 
 				"format": "pdf", 
 				"options": { 
-				  "legendLayers": [], // empty array means no legend
-				  "scalebarUnit": "Miles",
-				  "titleText": printTitle + ", Landscape PDF" 
+                "legendLayers": [], // empty array means no legend
+                "scalebarUnit": "Miles",
+                "titleText": printTitle + ", Landscape PDF" 
 				}
-			  }, {
+            }, {
 				"name": "Letter ANSI A Portrait", 
 				"label": "Portrait (Image)", 
 				"format": "jpg", 
 				"options":  { 
-				  "legendLayers": [],
-				  "scaleBarUnit": "Miles",
-				  "titleText": printTitle + ", Portrait JPG"
+                "legendLayers": [],
+                "scaleBarUnit": "Miles",
+                "titleText": printTitle + ", Portrait JPG"
 				}
-			  },{
+            },{
                 label: "Map Only (PNG)",
                 format: "PNG32",
                 layout: "MAP_ONLY",
@@ -477,22 +369,22 @@
 			];
 			
 			// create the print templates, could also use dojo.map
-			var templates = [];
+            templates = [];
 			dojo.forEach(layouts, function(lo) {
-			  var t = new esri.tasks.PrintTemplate();
-			  t.layout = lo.name;
-			  t.label = lo.label;
-			  t.format = lo.format;
-			  t.preserveScale = false;
-			  t.layoutOptions = lo.options;
-			  templates.push(t);
+                var t = new esri.tasks.PrintTemplate();
+                t.layout = lo.name;
+                t.label = lo.label;
+                t.format = lo.format;
+                t.preserveScale = false;
+                t.layoutOptions = lo.options;
+                templates.push(t);
 			});
 
 			printer = new esri.dijit.Print({
-			  "map": map,
-			  "templates": templates,
-			  "asynch":	false,
-			  url: "http://argis.ualr.edu/ieagis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
+                "map": map,
+                "templates": templates,
+                "asynch":	false,
+                url: "http://argis.ualr.edu/ieagis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
 			}, dojo.byId("printButton"));
 			printer.startup();			
 			dojo.connect(printer, "onPrintStart", function(){
@@ -524,33 +416,33 @@
 			var deferred = identifyTask.execute(identifyParams);
 
 			deferred.addCallback(function(response) {     
-			  // response is an array of identify result objects    
-			  // Let's return an array of features.
-			  return dojo.map(response, function(result) {
-				var feature = result.feature;
-					feature.attributes.layerName = result.layerName;
-					var template = new InfoTemplate(); 
-					template.setTitle(feature.attributes.layerName);
-					//alert(result.layerName);
-				switch (result.layerName){
-					case 'County':
-						template.setContent(getCountyContent);
-						feature.setInfoTemplate(template);
-						break;
-					case 'Fire Districts':
-						template.setContent(getFDContent);
-						feature.setInfoTemplate(template);
-						break;
-					case 'Parcels':
-						template.setContent(getParcelContent);
-						feature.setInfoTemplate(template);
-						break;							
-					default:
-						return false;
-				}					
-				return feature;
-			  });
-			});
+            // response is an array of identify result objects    
+            // Let's return an array of features.
+            return dojo.map(response, function(result) {
+            var feature = result.feature;
+                feature.attributes.layerName = result.layerName;
+                var template = new InfoTemplate(); 
+                template.setTitle(feature.attributes.layerName);
+                //alert(result.layerName);
+                switch (result.layerName){
+                case 'County':
+                    template.setContent(getCountyContent);
+                    feature.setInfoTemplate(template);
+                    break;
+                case 'Fire Districts':
+                    template.setContent(getFDContent);
+                    feature.setInfoTemplate(template);
+                    break;
+                case 'Parcels':
+                    template.setContent(getParcelContent);
+                    feature.setInfoTemplate(template);
+                    break;							
+                default:
+                    return false;
+                }					
+                return feature;
+            });
+            });
 
 			// InfoWindow expects an array of features from each deferred
 			// object that you pass. If the response from the task execution 
@@ -572,7 +464,7 @@
 		}	
 		function qryResults(results){
 		
-		    //Populate the dropdown list box with unique values
+            //Populate the dropdown list box with unique values
 			values = [];
 			testVals = {};
 			
@@ -586,9 +478,9 @@
 			});
 			
 			dataItems = {
-				   identifier: "OBJECTID",
-				   label: "NAME10",
-				   items: values
+                identifier: "OBJECTID",
+                label: "NAME10",
+                items: values
 			};
 			
 			countyStore = new dojo.data.ItemFileReadStore({data:dataItems});
@@ -616,9 +508,9 @@
 			});
 			
 			dataItems = {
-				   identifier: "OBJECTID_1",
-				   label: "NAME",
-				   items: values
+                identifier: "OBJECTID_1",
+                label: "NAME",
+                items: values
 			};
 			
 			theStore = new ItemFileReadStore({data:dataItems});
@@ -654,50 +546,3 @@
 			map._layers.Ar_Fire_Distrcts.setVisibleLayers([0,1,2]);
 		}
  });			
-</script> 
-</head> 
-<body class="claro">
-    <!--div id="IEA_Watermark"><img src="img/IEA_LOGO_Watermark.png"/></div>
-    <div id="AFD_Watermark"><img src="img/AFD_Watermark.png"/></div-->
-    <div id="mapinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
-    <div id="printinfofp" style="position:absolute;visibility:hidden" class="dojoxFloatingPaneWrapper"></div>
-	<div id="header">
-		<center>
-		<span style="float:left;padding:10px 0px 0px 5px;"><a border="0" target="_blank" href="http://iea.ualr.edu"><img border="0" height="50px" width="220px"src="img/IEA_LOGO_Plain_White.png"/></a></span>
-		<br/>
-			<span class="soa">Arkansas Fire Districts</span>
-		</center>	
-		<div id="smallBar"></div>		
-	</div>
-    <div id="mapDiv">
-		<ul class="toolbar">
-			<li title="Search" class="toolbarButton mapinfobtn" id="mapinfobtn"></li>
-			<li title="Print" class="toolbarButton printbtn" id="printbtn"></li>
-			<li title="Default Extent" class="toolbarButton homebtn" id="homebtn"></li>	
-			<li title="Overview" class="toolbarButton overviewbtn" id="overviewbtn"></li>
-			<li title="Zoom in" class="toolbarButton zoominbtn" id="zminbtn"></li>
-			<li title="Zoom out" class="toolbarButton zoomoutbtn" id="zmout"></li>
-            <li title="Previous extent" class="toolbarButton prevbtn" id="prevbtn"></li>
-			<li title="Next extent" class="toolbarButton nextbtn" id="nextbtn"></li>
-			<li title="Pan" class="toolbarButton panbtn" id="panbtn"></li>
-			<!--li title="About" class="toolbarButton infobtn" id="infobtn"></li-->
-		</ul>
-	</div>	
-    <div id="expandOV" style="visibility:visible;"><img border="1" src="img/expand-top-right.png" title="Expand Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999"/></div>
-    <div id="collapseOV" style="visibility:hidden;"><img border="1" src="img/collapse-top-right.png" title="Collapse Overview Map" style="position:absolute;top:0px;right:0px;z-Index:999;;"/></div>
-    <div id="ovWin" class="shadow" style="position:absolute;top:0px;right:0px;z-Index:998; width:200px;height:200px;">
-        <div id="overviewDiv" style="width:100%;height:100%;">
-        </div>
-    </div>
-	<div id="footer">		
-		<span style="padding:20px 5px 0px 10px;z-index:30;position:absolute;right:10px;"><a border="0" target="_blank" href="http://ualr.edu"><img border="0" src="img/signature.png"></a></span>
-		<!--center-->
-			<span id="contact">Website created and maintained by<br/>
-				<a href="http://argis.ualr.edu" border="0" style="color:white" target="_top">UALR GIS Applications Laboratory</a><br/>
-				Institute for Economic Advancement<br/>
-				Questions? <a href="mailto:ilfarmahan@ualr.edu?Subject=Arkansas%20Fire%20Districts" style="color:white" target="_top">Email us</a> or call (501) 569-8530
-			</span>
-		<!--/center-->
-	</div>
-</body> 
-</html>
